@@ -1,6 +1,31 @@
-h1 {
-    font-family: monospace;
-    font-weight: normal;
+:root {
+    --map-width: 1065px;
+    --map-height: 973px;
+    --pin-size: 20px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
     text-align: center;
-    margin-top: 60px;
+}
+
+img {
+    display: block;
+    margin: 0;
+    margin: auto;
+    padding: 0;
+    max-width: 100vw;
+    max-height: 100vh;
+}
+
+.pin {
+    margin: 0;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    border-radius: 20px;
+    position: absolute;
+    transition: 20ms;
 }
