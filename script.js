@@ -16,7 +16,7 @@ let pinOffset = [10, 10] // in pixels
 placePins()
 
 window.onresize = updatePinPositions
-map.onclick = clickFunction
+// map.onclick = clickFunction
 
 function placePins() { // argumentless function for easy callable
     for (let i = 0; i < pins.length; i++) { // for each pin
@@ -26,7 +26,8 @@ function placePins() { // argumentless function for easy callable
 }
 
 function makePin(pinName) {
-    let pin = document.createElement("div");
+    let pin = document.createElement("a");
+    pin.href = "./detail.html"
     pin.id = pinName
     pin.classList.add("pin")
     document.body.append(pin)
