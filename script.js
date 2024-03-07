@@ -1,5 +1,9 @@
+// Get the map object from the DOM
 let map = document.querySelector("#map");
 
+
+// TODO: Add links to each of the pins that reference actual pages.
+// Store the pins to create them dynamically.
 let pins = [
     {
         name: "pin 1",
@@ -11,11 +15,16 @@ let pins = [
     }
 ]
 
-let pinOffset = [10, 10] // in pixels
+// Define an offset to accurately position the pin placed
+let pinOffset = [10, 10]
 
+centerElement(map)
 placePins()
 
+// Update the pin positions whenever we resize the window
 window.onresize = updatePinPositions
+
+// Make a new pin and log its relative position in the console when we click on the map
 // map.onclick = clickFunction
 
 function placePins() { // argumentless function for easy callable
@@ -75,4 +84,93 @@ function clickFunction(event) {
     makeNewPin(relPos, "nameless pin")
 }
 
-// TODO: adjust position by size of pin.
+// --------
+
+// Zooming
+
+onwheel = (event) => {
+    if (event.deltaY > 0) resizeMap(-1)
+    else if (event.deltaY < 0) resizeMap(1)
+}
+
+function resizeMap(direction) {
+    let multiplier = 0.1
+    let newRelWidth = (direction * multiplier) + 1
+    let currentAbsWidth = map.getBoundingClientRect().width
+    let newAbsWidth = currentAbsWidth * newRelWidth
+    map.style.width = newAbsWidth + "px"
+    centerElement(map)
+    updatePinPositions()
+}
+
+function centerElement(element) {
+    if (element) {
+      // Get the element's dimensions
+      const elementWidth = element.offsetWidth;
+      const elementHeight = element.offsetHeight;
+  
+      // Get the window's dimensions
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+  
+      // Calculate the top and left positions for centering
+      const top = (windowHeight - elementHeight) / 2;
+      const left = (windowWidth - elementWidth) / 2;
+  
+      // Set the element's position and styles
+      element.style.position = 'fixed';
+      element.style.top = `${top}px`;
+      element.style.left = `${left}px`;
+    }
+}
+
+// Panning
+
+let isDragging = false;
+let currentX;
+let currentY;
+let initialX;
+let initialY;
+let xOffset = 0;
+let yOffset = 0;
+const dragElement = map;
+
+window.addEventListener('mousedown', dragStart);
+window.addEventListener('mouseup', dragEnd);
+window.addEventListener('mousemove', drag);
+
+function dragStart(e) {
+  initialX = e.clientX - xOffset;
+  initialY = e.clientY - yOffset;
+
+  if (e.target === dragElement || e.target === document.querySelector("html")) {
+    isDragging = true;
+  }
+}
+
+function dragEnd(e) {
+  initialX = currentX;
+  initialY = currentY;
+
+  isDragging = false;
+}
+
+function drag(e) {
+  if (isDragging) {
+    e.preventDefault();
+
+    currentX = e.clientX - initialX;
+    currentY = e.clientY - initialY;
+
+    xOffset = currentX;
+    yOffset = currentY;
+
+    setTranslate(currentX, currentY, dragElement);
+
+    updatePinPositions();
+  }
+}
+
+function setTranslate(xPos, yPos, el) {
+  el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+}
