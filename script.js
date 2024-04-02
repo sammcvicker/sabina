@@ -1,182 +1,155 @@
-// A simple test comment!
+// Get the map-container from the DOM
+let mapContainer = document.querySelector("#map-container");
 
-// Get the map object from the DOM
-let map = document.querySelector("#map");
+// Get the map-overlay and its img from the DOM
+let mapOverlay = document.querySelector("#map-overlay");
+let mapOverlayImg = document.querySelector("#map-overlay img");
 
-// TODO: Add links to each of the pins that reference actual pages.
-// Store the pins to create them dynamically.
-let pins = [
-  {
-    name: "pin 1",
-    relPos: [0.5, 0.5],
-  },
-  {
-    name: "pin 2",
-    relPos: [0.7, 0.3],
-  },
-];
+// Store the map's native resolution
+let mapResolution = [4800, 2700];
 
-// Define an offset to accurately position the pin placed
-let pinOffset = [10, 10];
+// Store the initial map-container scale
+let initialMapConatinerScale = 0.25;
 
-centerElement(map);
-placePins();
+// Set the initial map-container size
+let initialMapContainerSize = [mapResolution[0] * initialMapConatinerScale, mapResolution[1] * initialMapConatinerScale];
 
-// Update the pin positions whenever we resize the window
-window.onresize = updatePinPositions;
-
-// Make a new pin and log its relative position in the console when we click on the map
-// map.onclick = clickFunction
-
-function placePins() {
-  // argumentless function for easy callable
-  for (let i = 0; i < pins.length; i++) {
-    // for each pin
-    pins[i].element = makePin(pins[i].name); // make it and add it to the pins object
-  }
-  updatePinPositions(); // then update all their positions
-}
-
-function makePin(pinName) {
-  let pin = document.createElement("a");
-  pin.href = "./detail.html";
-  pin.id = pinName;
-  pin.classList.add("pin");
-  document.body.append(pin);
-  return pin;
-}
-
-function makeNewPin(relPos, pinName) {
-  let newPin = {
-    name: pinName,
-    relPos: relPos,
-    element: makePin(pinName),
-  };
-  pins.push(newPin);
-  updatePinPositions();
-}
-
-function updatePinPosition(mapRect, pin, relPos) {
-  pin.style.left = relToAbs(mapRect, relPos)[0] - pinOffset[0] + "px";
-  pin.style.top = relToAbs(mapRect, relPos)[1] - pinOffset[1] + "px";
-}
-
-function updatePinPositions() {
-  let mapRect = map.getBoundingClientRect();
-  for (let i = 0; i < pins.length; i++) {
-    updatePinPosition(mapRect, pins[i].element, pins[i].relPos);
-  }
-}
-
-function relToAbs(mapRect, relPos) {
-  return [
-    mapRect.left + relPos[0] * mapRect.width,
-    mapRect.top + relPos[1] * mapRect.height,
-  ];
-}
-
-function absToRel(mapRect, absPos) {
-  return [
-    Math.round(100 * ((absPos[0] - mapRect.left) / mapRect.width)) / 100,
-    Math.round(100 * ((absPos[1] - mapRect.top) / mapRect.height)) / 100,
-  ];
-}
-
-function clickFunction(event) {
-  var relPos = absToRel(event.target.getBoundingClientRect(), [
-    event.clientX,
-    event.clientY,
-  ]);
-  makeNewPin(relPos, "nameless pin");
-}
-
-// --------
-
-// Zooming
+// Size and center the map-container
+sizeElement(mapContainer, initialMapContainerSize);
+centerElement(mapContainer);
 
 onwheel = (event) => {
-  if (event.deltaY > 0) resizeMap(-1);
-  else if (event.deltaY < 0) resizeMap(1);
-};
+    let mouseAbsPos = [event.clientX, event.clientY]
+    if (event.deltaY > 0) mapOnScroll(-1, mouseAbsPos)
+    else if (event.deltaY < 0) mapOnScroll(1, mouseAbsPos)
+}
 
-function resizeMap(direction) {
-  let multiplier = 0.1;
-  let newRelWidth = direction * multiplier + 1;
-  let currentAbsWidth = map.getBoundingClientRect().width;
-  let newAbsWidth = currentAbsWidth * newRelWidth;
-  map.style.width = newAbsWidth + "px";
-  centerElement(map);
-  updatePinPositions();
+// Log the relative position of the cursor on mousemove anywhere within the window
+// window.addEventListener("mousemove", (e) => {
+//     let relPos = absToRel([e.clientX, e.clientY]);
+//     console.log(relPos);
+// })
+
+// Store the pins to create them dynamically.
+let pins = [
+    {
+        name: "pin 1",
+        relPos: [0.5, 0.5]
+    },
+    {
+        name: "pin 2",
+        relPos: [0.7, 0.3]
+    }
+]
+
+// Define an offset to accurately position the pin placed (1/2 width, full height)
+let pinOffset = [20, 80]
+
+function sizeElement(element, size) {
+    element.style.width = size[0] + "px";
+    if (size[1] != null) element.style.height = size[1] + "px";
 }
 
 function centerElement(element) {
-  if (element) {
-    // Get the element's dimensions
-    const elementWidth = element.offsetWidth;
-    const elementHeight = element.offsetHeight;
-
-    // Get the window's dimensions
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-
-    // Calculate the top and left positions for centering
-    const top = (windowHeight - elementHeight) / 2;
-    const left = (windowWidth - elementWidth) / 2;
-
-    // Set the element's position and styles
-    element.style.position = "fixed";
-    element.style.top = `${top}px`;
-    element.style.left = `${left}px`;
-  }
+    let windowWidth = window.innerWidth;
+    let windowHeight = window.innerHeight;
+    let elementWidth = element.offsetWidth;
+    let elementHeight = element.offsetHeight;
+    element.style.left = (windowWidth - elementWidth) / 2 + "px";
+    element.style.top = (windowHeight - elementHeight) / 2 + "px";
 }
 
-// Panning
+function relToAbs(relPos) {
+    let mapRect = mapContainer.getBoundingClientRect();
+    return [
+        mapRect.left + (relPos[0] * mapRect.width),
+        mapRect.top + (relPos[1] * mapRect.height)
+    ]
+}
+
+function absToRel(absPos) {
+    let mapRect = mapContainer.getBoundingClientRect();
+    return [
+        (absPos[0] - mapRect.left) / mapRect.width,
+        (absPos[1] - mapRect.top) / mapRect.height
+    ]
+}
+
+function mapOnScroll(direction, mouseAbsPos) {
+    let mapRect = mapContainer.getBoundingClientRect();
+    let mouseRelPos = absToRel(mouseAbsPos);
+    let multiplier = 0.1;
+    // Get the new width and height of the map-container
+    let newRelWidth = (direction * multiplier) + 1;
+    let currentAbsWidth = mapRect.width;
+    let newAbsWidth = currentAbsWidth * newRelWidth;
+    let newRelHeight = (direction * multiplier) + 1;
+    let currentAbsHeight = mapRect.height;
+    let newAbsHeight = currentAbsHeight * newRelHeight;
+    // Resize the map-container
+    sizeElement(mapContainer, [newAbsWidth, newAbsHeight]);
+    // Translate the map-container relative to the previous relative mouse position
+    let absPosOfPrevRelPos = relToAbs(mouseRelPos)
+    let absPosDifference = [
+        -1 * (absPosOfPrevRelPos[0] - mouseAbsPos[0]),
+        -1 * (absPosOfPrevRelPos[1] - mouseAbsPos[1])
+    ]
+    translateMapContainer(absPosDifference);
+}
+
+function translateMapContainer(dimensions) {
+    let mapRect = mapContainer.getBoundingClientRect();
+    mapContainer.style.left = mapRect.left + dimensions[0] + "px";
+    mapContainer.style.top = mapRect.top + dimensions[1] + "px";
+}
+
+function positionMapContainer(position) {
+    mapContainer.style.left = position[0] + "px";
+    mapContainer.style.top = position[1] + "px";
+}
+
+// Dragging / panning the map-container
 
 let isDragging = false;
 let currentX;
 let currentY;
 let initialX;
 let initialY;
-let xOffset = 0;
-let yOffset = 0;
-const dragElement = map;
+let xOffset;
+let yOffset;
+const dragElement = mapContainer;
 
-window.addEventListener("mousedown", dragStart);
-window.addEventListener("mouseup", dragEnd);
-window.addEventListener("mousemove", drag);
+window.addEventListener('mousedown', dragStart);
+window.addEventListener('mouseup', dragEnd);
+window.addEventListener('mousemove', drag);
 
 function dragStart(e) {
-  initialX = e.clientX - xOffset;
-  initialY = e.clientY - yOffset;
-
-  if (e.target === dragElement || e.target === document.querySelector("html")) {
-    isDragging = true;
-  }
-}
-
-function dragEnd(e) {
-  initialX = currentX;
-  initialY = currentY;
-
-  isDragging = false;
+    xOffset = mapContainer.getBoundingClientRect().left;
+    yOffset = mapContainer.getBoundingClientRect().top;
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+    if (e.target === dragElement || e.target ===  mapOverlay || e.target === mapOverlayImg || e.target === document.querySelector("html")) {
+        isDragging = true;
+    }
 }
 
 function drag(e) {
-  if (isDragging) {
-    e.preventDefault();
+    if (isDragging) {
+        e.preventDefault();
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+        xOffset = currentX;
+        yOffset = currentY;
+        positionMapContainer([currentX, currentY]);
+    }
+}
 
-    currentX = e.clientX - initialX;
-    currentY = e.clientY - initialY;
-
-    xOffset = currentX;
-    yOffset = currentY;
-
-    setTranslate(currentX, currentY, dragElement);
-
-    updatePinPositions();
-  }
+function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
 }
 
 function setTranslate(xPos, yPos, el) {
-  el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
 }

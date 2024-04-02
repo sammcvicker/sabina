@@ -16,13 +16,17 @@ body {
     font-family: "Inter", sans-serif;
 }
 
+#index {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
 img {
     display: block;
     margin: 0;
     margin: auto;
     padding: 0;
-    max-width: 200vw;
-    max-height: 200vh;
+    width: 100%;
 }
 
 h1 {
@@ -58,12 +62,25 @@ a:hover, a.active {
 .pin {
     margin: 0;
     padding: 0;
-    width: 20px;
-    height: 20px;
-    background-color: #215452;
-    border-radius: 20px;
+    width: 40px;
+    height: 80px;
+    background-image: url('./assets/map_pin_1.png');
+    background-size: contain;
+    background-repeat: no-repeat;
     position: absolute;
     transition: 20ms;
+}
+
+#map-container {
+    position: absolute;
+    margin: auto;
+    mix-blend-mode: multiply;
+    outline: 1px solid black;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 #map {
@@ -74,7 +91,24 @@ a:hover, a.active {
     -webkit-user-select: none;
     -ms-user-select: none;
     z-index: -1;
+    width: 100%;
     mix-blend-mode: multiply;
+}
+
+#map-overlay {
+    /* display: none; */
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+}
+
+#map-overlay * {
+    position: absolute;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 #footer {

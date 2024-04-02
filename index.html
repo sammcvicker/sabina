@@ -12,7 +12,12 @@
   </head>
   <body id="index">
     <h1>Working Title</h1>
-    <img id="map" ondragstart="return false;" src="./assets/map.jpg">
+    <div id="map-container">
+      <img id="map" ondragstart="return false;" src="./assets/map_full_notags.png">
+      <div id="map-overlay">
+        <img class="map-tag" ondragstart="return false; "src="./assets/map_tagsonly_all.png">
+      </div>
+    </div>
     <div id="footer">
       <a href="./about.html">About</a>
       <a href="./index.html" class="active">Map</a>
