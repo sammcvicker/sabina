@@ -1,3 +1,8 @@
+// TODO: Merge translateMapContainer and positionMapContainer into one function; deprecate translateMapContainer
+// TODO: Keep the map where it is at its current relative scale on window resize
+// TODO: Implement a function to create pins from array of objects
+// TODO: Implement a function to update pin positions
+
 // Get the map-container from the DOM
 let mapContainer = document.querySelector("#map-container");
 
