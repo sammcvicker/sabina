@@ -3,6 +3,77 @@
 // TODO: Implement a function to create pins from array of objects
 // TODO: Implement a function to update pin positions
 
+// Create an object that stores the label positions, names, and alt-text
+let labels = [
+	{
+		name: "cuba",
+		src: "./assets/labels/label_cuba.png",
+		relPos: [0.3625, 0.0837037037037037]
+	},
+    {
+		name: "gramercy",
+		src: "./assets/labels/label_gramercy.png",
+		relPos: [0.5233333333333333, 0.042222222222222223]
+	},
+    {
+		name: "stuyvesant",
+		src: "./assets/labels/label_stuyvesant.png",
+		relPos: [0.6108333333333333, 0.0837037037037037]
+	},
+    {
+		name: "greenwich-village",
+		src: "./assets/labels/label_greenwich_village.png",
+		relPos: [0.49083333333333334, 0.23925925925925925]
+	},
+    {
+		name: "east-village",
+		src: "./assets/labels/label_east_village.png",
+		relPos: [0.6308333333333334, 0.27037037037037037]
+	},
+    {
+		name: "west-village",
+		src: "./assets/labels/label_west_village.png",
+		relPos: [0.4141666666666667, 0.35185185185185186]
+	},
+    {
+		name: "soho",
+		src: "./assets/labels/label_soho.png",
+		relPos: [0.5208333333333334, 0.4140740740740741]
+	},
+    {
+		name: "lower-east-side",
+		src: "./assets/labels/label_lower_east_side.png",
+		relPos: [0.6591666666666667, 0.4540740740740741]
+	},
+    {
+		name: "tribeca",
+		src: "./assets/labels/label_tribeca.png",
+		relPos: [0.4575, 0.577037037037037]
+	},
+    {
+		name: "chinatown",
+		src: "./assets/labels/label_chinatown.png",
+		relPos: [0.63, 0.662962962962963]
+	},
+    {
+		name: "lower-manhattan",
+		src: "./assets/labels/label_lower_manhattan.png",
+		relPos: [0.5466666666666666, 0.74]
+	}
+]
+
+// Store the label resolution in pixels
+let labelResolution = [700, 216];
+
+// Store the actual label width in pixels
+let labelWidth = 200;
+
+// Store the actual label size in pixels
+let labelSize = [labelWidth, labelResolution[1] * (labelWidth / labelResolution[0])];
+
+// Store the label offset in pixels
+let labelOffset = [labelSize[0] / 2, labelSize[1] / 2];
+
 // Get the map-container from the DOM
 let mapContainer = document.querySelector("#map-container");
 
@@ -10,10 +81,14 @@ let mapContainer = document.querySelector("#map-container");
 let mapOverlay = document.querySelector("#map-overlay");
 let mapOverlayImg = document.querySelector("#map-overlay img");
 
+// Get the map-labels from the DOM
+let mapLabels = document.querySelector("#map-labels");
+
 // Store the map's native resolution
 let mapResolution = [4800, 2700];
 
 // Store the initial map-container scale
+// TODO: Make sure the map loads at the right scale!
 let initialMapConatinerScale = 0.25;
 
 // Set the initial map-container size
@@ -23,6 +98,50 @@ let initialMapContainerSize = [mapResolution[0] * initialMapConatinerScale, mapR
 sizeElement(mapContainer, initialMapContainerSize);
 centerElement(mapContainer);
 
+// Create the labels on the map.
+for (let i = 0; i < labels.length; i++) {
+	makeLabel(labels[i]);
+}
+
+// Update the scales of all the labels
+// updateLabelScales();
+
+// Update the positions of all the labels
+updateLabelPositions();
+
+function makeLabel(labelData) {
+	let label = document.createElement("img");
+	label.id = labelData.name;
+	label.classList.add("map-label");
+	label.src = labelData.src;
+    label.ondragstart = () => { return false; }
+    let mapLabels = document.querySelector("#map-labels");
+    mapLabels.appendChild(label);
+}
+
+// function updateLabelScales() {
+//     let mapRect = mapContainer.getBoundingClientRect();
+//     let mapWidth = mapRect.width;
+//     let scaleFactor = mapWidth / mapResolution[0];
+//     let newLabelWidth = labelResolution[0] * scaleFactor;
+//     for (let i = 0; i < labels.length; i++) {
+//         let label = document.querySelector("#" + labels[i].name);
+//         sizeElement(label, [newLabelWidth, null]);
+//     }
+// }
+
+function updateLabelPositions() {
+	for (let i = 0; i < labels.length; i++) {
+        let label = document.querySelector("#" + labels[i].name);
+        let absPos = relToAbs(labels[i].relPos);
+        let mapRect = mapContainer.getBoundingClientRect();
+        label.style.left = (absPos[0] - labelOffset[0] - mapRect.left) + "px";
+        label.style.top = (absPos[1] - labelOffset[1] - mapRect.top) + "px";
+        // label.style.left = (absPos[0]) + "px";
+        // label.style.top = (absPos[1]) + "px";
+    }
+}
+
 onwheel = (event) => {
     let mouseAbsPos = [event.clientX, event.clientY]
     if (event.deltaY > 0) mapOnScroll(-1, mouseAbsPos)
@@ -30,10 +149,10 @@ onwheel = (event) => {
 }
 
 // Log the relative position of the cursor on mousemove anywhere within the window
-// window.addEventListener("mousemove", (e) => {
-//     let relPos = absToRel([e.clientX, e.clientY]);
-//     console.log(relPos);
-// })
+window.addEventListener("mousedown", (e) => {
+    let relPos = absToRel([e.clientX, e.clientY]);
+    // console.log(relPos);
+})
 
 // Store the pins to create them dynamically.
 let pins = [
@@ -100,20 +219,23 @@ function mapOnScroll(direction, mouseAbsPos) {
         -1 * (absPosOfPrevRelPos[1] - mouseAbsPos[1])
     ]
     translateMapContainer(absPosDifference);
+    updateLabelPositions();
 }
 
 function translateMapContainer(dimensions) {
     let mapRect = mapContainer.getBoundingClientRect();
     mapContainer.style.left = mapRect.left + dimensions[0] + "px";
     mapContainer.style.top = mapRect.top + dimensions[1] + "px";
+    updateLabelPositions();
 }
 
 function positionMapContainer(position) {
     mapContainer.style.left = position[0] + "px";
     mapContainer.style.top = position[1] + "px";
+    updateLabelPositions();
 }
 
-// Dragging / panning the map-container
+// Dragging and panning the map-container
 
 let isDragging = false;
 let currentX;
@@ -133,7 +255,11 @@ function dragStart(e) {
     yOffset = mapContainer.getBoundingClientRect().top;
     initialX = e.clientX - xOffset;
     initialY = e.clientY - yOffset;
-    if (e.target === dragElement || e.target ===  mapOverlay || e.target === mapOverlayImg || e.target === document.querySelector("html")) {
+	let relPos = absToRel([e.clientX, e.clientY]);
+	console.log(relPos);
+    // let mapLabelsChildren = mapLabels.children;
+    // if (mapLabels.children.includes(e.target)) {}
+    if (e.target === dragElement || e.target === document.querySelector("#map") || e.target ===  mapLabels || Array.from(mapLabels.children).includes(e.target) || e.target === document.querySelector("html")) {
         isDragging = true;
     }
 }
