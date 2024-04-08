@@ -285,7 +285,7 @@ function mapScroll(event) { // Zoom in and out on the map on scroll
 function zoomAndPositionMap(direction, mouseAbsPos) { // TODO: Refactor for readability
     let mapRect = dom.mapContainer.getBoundingClientRect(); // Get the current bounding rectangle of the map-container
     let mouseRelPos = absToRel(mouseAbsPos); // Convert the absolute position of the cursor to a relative position
-    let multiplier = 0.1; // Set the zoom speed multiplier
+    let multiplier = 0.065; // Set the zoom speed multiplier
     let newRelWidth = (direction * multiplier) + 1; // Get the new width and height of the map-container...
     let currentAbsWidth = mapRect.width;
     let newAbsWidth = currentAbsWidth * newRelWidth;
