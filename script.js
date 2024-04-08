@@ -2,8 +2,27 @@
 // TODO: Keep the map where it is at its current relative scale on window resize
 // TODO: Implement a function to create pins from array of objects
 // TODO: Implement a function to update pin positions
+// TODO: Make sure the container loads at the right scale initially!
 
-// Create an object that stores the label positions, names, and alt-text
+// ----------------- MAP -----------------
+
+// 1. Map Data ---------------------------
+let mapResolution = [4800, 2700]; // Store the map's native resolution
+let initialMapConatinerScale = 0.25; // Store the initial map-container scale
+let initialMapContainerSize = [ // Set the initial map-container size
+    mapResolution[0] * initialMapConatinerScale, 
+    mapResolution[1] * initialMapConatinerScale
+];
+
+// 2. Map Container ----------------------
+let mapContainer = document.querySelector("#map-container"); // Get the map-container from the DOM
+sizeElement(mapContainer, initialMapContainerSize); // Size...
+centerElement(mapContainer); // and center the map-container
+
+// ----------------- LABELS -----------------
+
+// 1. Label Data --------------------------
+// Create an object that stores the label names, sources, and relative positions
 let labels = [
 	{
 		name: "cuba",
@@ -61,50 +80,35 @@ let labels = [
 		relPos: [0.5466666666666666, 0.74]
 	}
 ]
+let labelResolution = [700, 216]; // Store the original resoluteion of the labels in pixels
+let labelWidth = 264; // Store the actual label width in pixels (defined in style.css)
+let labelHeight = labelResolution[1] * (labelWidth / labelResolution[0]); // Determine the label height in pixels from the width and resolution
+let labelSize = [labelWidth, labelHeight]; // Store the actual label size in pixels
+let labelOffset = [labelSize[0] / 2, labelSize[1] / 2]; // Store the label offset in pixels (1/2 width, 1/2 height)
 
-// Store the label resolution in pixels
-let labelResolution = [700, 216];
+// 2. Label Creation ----------------------
+let mapLabels = document.querySelector("#map-labels"); // Get the map-labels from the DOM
+let labelElements = []; // Create a labelElements array to store the label elements
+for (let i = 0; i < labels.length; i++) { // Create the labels on the map
+	labelElements.push(makeLabel(labels[i]));
+}
+updateLabelPositions(); // Update the positions of all the labels
 
-// Store the actual label width in pixels
-let labelWidth = 264;
+// ----------------- FUNCTIONS IN ORDER OF APPEARANCE -----------------
 
-// Store the actual label size in pixels
-let labelSize = [labelWidth, labelResolution[1] * (labelWidth / labelResolution[0])];
-
-// Store the label offset in pixels
-let labelOffset = [labelSize[0] / 2, labelSize[1] / 2];
-
-// Get the map-container from the DOM
-let mapContainer = document.querySelector("#map-container");
-
-// Get the map-overlay and its img from the DOM
-let mapOverlay = document.querySelector("#map-overlay");
-let mapOverlayImg = document.querySelector("#map-overlay img");
-
-// Get the map-labels from the DOM
-let mapLabels = document.querySelector("#map-labels");
-
-// Store the map's native resolution
-let mapResolution = [4800, 2700];
-
-// Store the initial map-container scale
-// TODO: Make sure the map loads at the right scale!
-let initialMapConatinerScale = 0.25;
-
-// Set the initial map-container size
-let initialMapContainerSize = [mapResolution[0] * initialMapConatinerScale, mapResolution[1] * initialMapConatinerScale];
-
-// Size and center the map-container
-sizeElement(mapContainer, initialMapContainerSize);
-centerElement(mapContainer);
-
-// Create the labels on the map.
-for (let i = 0; i < labels.length; i++) {
-	makeLabel(labels[i]);
+function sizeElement(element, size) {
+    element.style.width = size[0] + "px";
+    if (size[1] != null) element.style.height = size[1] + "px";
 }
 
-// Update the positions of all the labels
-updateLabelPositions();
+function centerElement(element) {
+    let windowWidth = window.innerWidth;
+    let windowHeight = window.innerHeight;
+    let elementWidth = element.offsetWidth;
+    let elementHeight = element.offsetHeight;
+    element.style.left = (windowWidth - elementWidth) / 2 + "px";
+    element.style.top = (windowHeight - elementHeight) / 2 + "px";
+}
 
 function makeLabel(labelData) {
 	let label = document.createElement("img");
@@ -114,6 +118,7 @@ function makeLabel(labelData) {
     label.ondragstart = () => { return false; }
     let mapLabels = document.querySelector("#map-labels");
     mapLabels.appendChild(label);
+    return label;
 }
 
 function updateLabelPositions() {
@@ -153,20 +158,6 @@ let pins = [
 
 // Define an offset to accurately position the pin placed (1/2 width, full height)
 let pinOffset = [20, 80]
-
-function sizeElement(element, size) {
-    element.style.width = size[0] + "px";
-    if (size[1] != null) element.style.height = size[1] + "px";
-}
-
-function centerElement(element) {
-    let windowWidth = window.innerWidth;
-    let windowHeight = window.innerHeight;
-    let elementWidth = element.offsetWidth;
-    let elementHeight = element.offsetHeight;
-    element.style.left = (windowWidth - elementWidth) / 2 + "px";
-    element.style.top = (windowHeight - elementHeight) / 2 + "px";
-}
 
 function relToAbs(relPos) {
     let mapRect = mapContainer.getBoundingClientRect();
