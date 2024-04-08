@@ -163,12 +163,12 @@ centerElement(dom.mapContainer); // Center the map-container
 
 // Labels
 
-for (let i = 0; i < data.labels.length; i++) { // For each label,
-	data.labels[i].element = (makeLabelElement(data.labels[i])); // Create an element and store it in data.labels[i].element
+for (let i = 0; i < data.labels.length; i++) { // For each label, create an element and store it in data.labels[i].element...
+	data.labels[i].element = (makeLabelElement(data.labels[i]));
 }
 updateLabelPositions(); // Update the positions of all the labels (MAYBE MOVE)
 
-function makeLabelElement(labelData) {
+function makeLabelElement(labelData) { // Create a label element and return it...
 	let labelElement = document.createElement("img"); // Create a new image element
 	labelElement.id = labelData.name; // Set the id of the element
 	labelElement.classList.add("map-label"); // Add the map-label class to the element
@@ -178,7 +178,7 @@ function makeLabelElement(labelData) {
     return labelElement;
 }
 
-function updateLabelPositions() {
+function updateLabelPositions() { // Update the positions of all the labels...
 	for (let i = 0; i < data.labels.length; i++) { // For each label
         let label = data.labels[i].element; // Get the label element
         let absPos = relToAbs(data.labels[i].relPos); // Convert its relative position to an absolute position
@@ -190,12 +190,12 @@ function updateLabelPositions() {
 
 // Pins
 
-for (let i = 0; i < data.pins.length; i++) { // For each pin,
-    data.pins[i].element = (makePinElement(data.pins[i])); // Create an element and store it in data.pins[i].element
+for (let i = 0; i < data.pins.length; i++) { // For each pin, create an element and store it in data.pins[i].element...
+    data.pins[i].element = (makePinElement(data.pins[i]));
 }
 updatePinPositions(); // Update the positions of all the pins (MAYBE MOVE)
 
-function makePinElement(pinData) {
+function makePinElement(pinData) { // Create a pin element and return it...
     let pinElement = document.createElement("a"); // Create a new anchor element
     pinElement.id = pinData.name; // Set the id of the element
     pinElement.classList.add("map-pin"); // Add the map-pin class to the element
@@ -207,7 +207,7 @@ function makePinElement(pinData) {
     return pinElement;
 }
 
-function updatePinPositions() {
+function updatePinPositions() { // Update the positions of all the pins...
 	for (let i = 0; i < data.pins.length; i++) { // For each pin
         let pin = data.pins[i].element; // Get the pin element
         let absPos = relToAbs(data.pins[i].relPos); // Convert its relative position to an absolute position
@@ -223,7 +223,7 @@ function updatePinPositions() {
 
 if (isLogRelPos) window.addEventListener("mousedown", logRelPos); // Create a listener that calls logRelPos on mousedown
 
-function logRelPos(e) { // Log the relative position of the cursor on mousedown
+function logRelPos(e) { // Log the relative position of the cursor on mousedown...
     let relPos = absToRel([e.clientX, e.clientY]); // Convert the absolute position of the cursor to a relative position
     console.log(relPos); // Log the relative position
 }
@@ -232,7 +232,7 @@ function logRelPos(e) { // Log the relative position of the cursor on mousedown
 
 window.addEventListener('mousemove', updateLabelOpacities); // Create a listener that calls updateLabelOpacities on mousemove
 
-function updateLabelOpacities(e) {
+function updateLabelOpacities(e) { // Update the opacities of the labels based on the distance between the cursor and the labels...
     let distances = []; // Prepare to store the distances between the cursor and the labels
     let point1 = [e.clientX, e.clientY];
     for (let i = 0; i < data.labels.length; i++) { // For each label,
@@ -310,7 +310,7 @@ let drag = { // Store the dragging state and properties
     element: dom.mapContainer // MAYBE replace with array? 
 }
 
-function dragStart(e) { // Start dragging the map-container
+function dragStart(e) { // Start dragging the map-container...
     let mapRect = dom.mapContainer.getBoundingClientRect(); // Get the current bounding rectangle of the map-container
     drag.xOffset = mapRect.left; // Set the x offset of the map-container
     drag.yOffset = mapRect.top; // Set the y offset of the map-container
@@ -327,7 +327,7 @@ function dragStart(e) { // Start dragging the map-container
     }
 }
 
-function dragMove(e) { // Move the map-container as the mouse moves
+function dragMove(e) { // Move the map-container as the mouse moves...
     if (drag.isDragging) { // If the map-container is being dragged,
         e.preventDefault(); // Prevent the default behavior of the event
         drag.currentX = e.clientX - drag.initialX; // Calculate the current x and y positions of the cursor...
@@ -350,12 +350,12 @@ function dragEnd(e) { // Stop dragging the map-container, reset the dragging sta
 
 // Sizing and Positioning
 
-function sizeElement(element, size) {
+function sizeElement(element, size) { // Size an element to a specific size...
     element.style.width = size[0] + "px"; // Set the width of the element
     if (size[1] != null) element.style.height = size[1] + "px"; // Set the height of the element if it's not null
 }
 
-function position(element, absPos) { // Position an element at an absolute position
+function position(element, absPos) { // Position an element at an absolute position...
     element.style.left = absPos[0] + "px";
     element.style.top = absPos[1] + "px";
 }
@@ -370,14 +370,14 @@ function centerElement(element) { // Center an element in the window TODO: Invol
     position(element, absPos); // Position the element at the center
 }
 
-function getCenterOf(element) { // Get the center position of an element
+function getCenterOf(element) { // Get the center position of an element...
     let rect = element.getBoundingClientRect();
     return [rect.left + (rect.width / 2), rect.top + (rect.height / 2)];
 }
 
 // Absolute and Relative Conversion
 
-function relToAbs(relPos) { // Convert a relative position to an absolute position
+function relToAbs(relPos) { // Convert a relative position to an absolute position...
     let mapRect = dom.mapContainer.getBoundingClientRect();
     return [
         mapRect.left + (relPos[0] * mapRect.width),
@@ -385,7 +385,7 @@ function relToAbs(relPos) { // Convert a relative position to an absolute positi
     ]
 }
 
-function absToRel(absPos) { // Convert an absolute position to a relative position
+function absToRel(absPos) { // Convert an absolute position to a relative position...
     let mapRect = dom.mapContainer.getBoundingClientRect();
     return [
         (absPos[0] - mapRect.left) / mapRect.width,
