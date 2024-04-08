@@ -1,6 +1,7 @@
-// TODO: Implement a function to create pins from array of objects
+// TODO: Finalize the reflow for the detail view
+// TODO: Rename pin1
+// TODO: Update the footer design
 // TODO: Keep the map where it is at its current relative scale on window resize
-// TODO: Implement a function to update pin positions
 // TODO: Make sure the container loads at the right scale initially!
 
 // DEBUGGING -------------------------------------------------------------------
