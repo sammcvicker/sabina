@@ -1,16 +1,14 @@
-// TODO ---------------------------
-// TODO: Merge translateMapContainer and positionMapContainer into one function; deprecate translateMapContainer
 // TODO: Keep the map where it is at its current relative scale on window resize
 // TODO: Implement a function to create pins from array of objects
 // TODO: Implement a function to update pin positions
 // TODO: Make sure the container loads at the right scale initially!
 
-// DEBUGGING ------------------------
+// DEBUGGING -------------------------------------------------------------------
 
 let isLogRelPos = true; // Log the relative position of the cursor on mousedown
 
-// DATA OBJECT --------------------------
-// ------------- INITIAL CONSTANTS
+// DATA OBJECT -----------------------------------------------------------------
+
 let data = {
     map: {
         resolution: [4800, 2700], // The native resolution of the map in pixels
@@ -78,49 +76,40 @@ let data = {
         }
     ]
 }
-// ------------- CALCULATED CONSTANTS (MAP)
-data.map.initialSize = [ // Calculate the initial size of the map-container
+
+// Calculated Constants (Map)
+
+data.map.initialSize = [ // Calculate the initial size of the map-container...
     data.map.resolution[0] * data.map.initialScale, 
     data.map.resolution[1] * data.map.initialScale
 ]
-// ------------- CALCULATED CONSTANTS (LABELS)
+
+// Calculated Constants (Labels)
+
 data.label.height = data.label.resolution[1] * (data.label.width / data.label.resolution[0]); // Determine the label height in pixels from the width and resolution
 data.label.size = [data.label.width, data.label.height]; // Store the actual label size in pixels
 data.label.offset = [data.label.size[0] / 2, data.label.size[1] / 2]; // Store the label offset in pixels (1/2 width, 1/2 height)
 
-// DOM OBJECT --------------------------------
+// DOM OBJECT ------------------------------------------------------------------
+
 let dom = {
     mapContainer: document.querySelector("#map-container"),
     labelsContainer: document.querySelector("#labels-container")
 }
 
-// MAP CONTAINER SETUP ----------------------
+// INITIALIZATION OF MAP AND LABELS -------------------------------------------
+
+// Map
+
 sizeElement(dom.mapContainer, data.map.initialSize); // Size the map-container
 centerElement(dom.mapContainer); // Center the map-container
 
-// LABEL CREATION ---------------------------
-for (let i = 0; i < data.labels.length; i++) { // For each label
+// Labels
+
+for (let i = 0; i < data.labels.length; i++) { // For each label,
 	data.labels[i].element = (makeLabelElement(data.labels[i])); // Create an element and store it in data.labels[i].element
 }
 updateLabelPositions(); // Update the positions of all the labels (MAYBE MOVE)
-
-// ----------------- FUNCTIONS IN ORDER OF APPEARANCE -----------------
-
-function sizeElement(element, size) {
-    element.style.width = size[0] + "px"; // Set the width of the element
-    if (size[1] != null) element.style.height = size[1] + "px"; // Set the height of the element if it's not null
-}
-
-function centerElement(element) {
-    // Get the window and element dimensions
-    let windowWidth = window.innerWidth;
-    let windowHeight = window.innerHeight;
-    let elementWidth = element.offsetWidth;
-    let elementHeight = element.offsetHeight;
-    // ...
-    element.style.left = (windowWidth - elementWidth) / 2 + "px"; // Center the element horizontally
-    element.style.top = (windowHeight - elementHeight) / 2 + "px"; // Center the element vertically
-}
 
 function makeLabelElement(labelData) {
 	let labelElement = document.createElement("img"); // Create a new image element
@@ -142,32 +131,88 @@ function updateLabelPositions() {
     }
 }
 
-// EVENT LISTENERS ---------------------------
-// -------------------------- DEBUGGING EVENTS
-if (isLogRelPos) window.addEventListener("mousedown", logRelPos); // Log the relative position of the cursor on mousedown
-// ----------------------------------- ZOOMING
-window.addEventListener("wheel", mapScroll); // Zoom in and out on the map on scroll
-// ----------------------------------- DRAGGING
-window.addEventListener('mousedown', dragStart);
-window.addEventListener('mouseup', dragEnd);
-window.addEventListener('mousemove', dragMove);
+// EVENT LISTENERS & THEIR FUNCTIONS ------------------------------------------
 
-// CALLABLES ---------------------------------
+// Debugging
+
+if (isLogRelPos) window.addEventListener("mousedown", logRelPos); // Create a listener that calls logRelPos on mousedown
 
 function logRelPos(e) { // Log the relative position of the cursor on mousedown
     let relPos = absToRel([e.clientX, e.clientY]); // Convert the absolute position of the cursor to a relative position
     console.log(relPos); // Log the relative position
 }
 
-function mapScroll(event) { // Zoom in and out on the map on scroll
-    let mouseAbsPos = [event.clientX, event.clientY] // Store the absolute position of the cursor
-    if (event.deltaY > 0) mapOnScroll(-1, mouseAbsPos) // If the scroll direction is down, zoom out
-    else if (event.deltaY < 0) mapOnScroll(1, mouseAbsPos) // If the scroll direction is up, zoom in
+// Label Opacities
+
+window.addEventListener('mousemove', updateLabelOpacities); // Create a listener that calls updateLabelOpacities on mousemove
+
+function updateLabelOpacities(e) {
+    let distances = []; // Prepare to store the distances between the cursor and the labels
+    let point1 = [e.clientX, e.clientY];
+    for (let i = 0; i < data.labels.length; i++) { // For each label,
+        let point2 = getCenterOf(data.labels[i].element); // Set point2 to the center of the label
+        distances.push( // Add to distances between points to the array (using Pythagorean theorem)...
+            Math.abs( // The absolute value of
+                Math.sqrt( // The square root of
+                    Math.pow( // The square of
+                        point2[0] - point1[0], 2 // The difference between the x-coordinates of the two points
+                    ) + Math.pow( // Plus the square of
+                        point2[1] - point1[1], 2 // The difference between the y-coordinates of the two points
+                    )
+                )
+            )
+        );
+    }
+    let maximumDistance = Math.max(...distances);
+    let minimumDistance = Math.min(...distances);
+    let normalizedDistances = distances.map( // Normalize the distances...
+        (distance) => (distance - minimumDistance) / (maximumDistance - minimumDistance)
+    );
+    for (let i = 0; i < data.labels.length; i++) { // Set opacities of label elements based on normalized distances...
+        let opacity = 1 - normalizedDistances[i];
+        data.labels[i].element.style.opacity = opacity;
+    }
 }
 
-// ----------------------------------- DRAGGING
+// Zooming
 
-let drag = {
+window.addEventListener("wheel", mapScroll); // Create a listener that calls mapScroll on scroll
+
+function mapScroll(event) { // Zoom in and out on the map on scroll
+    let mouseAbsPos = [event.clientX, event.clientY] // Store the absolute position of the cursor
+    if (event.deltaY > 0) zoomAndPositionMap(-1, mouseAbsPos) // If the scroll direction is down, zoom out
+    else if (event.deltaY < 0) zoomAndPositionMap(1, mouseAbsPos) // If the scroll direction is up, zoom in
+}
+
+function zoomAndPositionMap(direction, mouseAbsPos) { // TODO: Refactor for readability
+    let mapRect = dom.mapContainer.getBoundingClientRect(); // Get the current bounding rectangle of the map-container
+    let mouseRelPos = absToRel(mouseAbsPos); // Convert the absolute position of the cursor to a relative position
+    let multiplier = 0.1; // Set the zoom speed multiplier
+    let newRelWidth = (direction * multiplier) + 1; // Get the new width and height of the map-container...
+    let currentAbsWidth = mapRect.width;
+    let newAbsWidth = currentAbsWidth * newRelWidth;
+    let newRelHeight = (direction * multiplier) + 1;
+    let currentAbsHeight = mapRect.height;
+    let newAbsHeight = currentAbsHeight * newRelHeight;
+    sizeElement(dom.mapContainer, [newAbsWidth, newAbsHeight]); // Set the new width and height of the map-container
+    let absPosOfPrevRelPos = relToAbs(mouseRelPos); // Convert the old relative position of cursor to an absolute position
+    mapRect = dom.mapContainer.getBoundingClientRect(); // Get the new bounding rectangle of the map-container
+    let newMapPosition = [ // Calculate the new position of the map-container...
+        mapRect.left + (-1 * (absPosOfPrevRelPos[0] - mouseAbsPos[0])),
+        mapRect.top + (-1 * (absPosOfPrevRelPos[1] - mouseAbsPos[1]))
+    ]
+    position(dom.mapContainer, newMapPosition); // Set the new position of the map-container
+    updateLabelPositions(); // Update the positions of the labels
+
+}
+
+// Dragging
+
+window.addEventListener('mousedown', dragStart); // Create listeners for mousedown, mouseup, and mousemove events...
+window.addEventListener('mouseup', dragEnd);
+window.addEventListener('mousemove', dragMove);
+
+let drag = { // Store the dragging state and properties
     isDragging: false,
     currentX: null,
     currentY: null,
@@ -175,15 +220,15 @@ let drag = {
     initialY: null,
     xOffset: null,
     yOffset: null,
-    element: dom.mapContainer
+    element: dom.mapContainer // MAYBE replace with array? 
 }
 
-function dragStart(e) {
-    drag.xOffset = dom.mapContainer.getBoundingClientRect().left;
-    drag.yOffset = dom.mapContainer.getBoundingClientRect().top;
-    drag.initialX = e.clientX - drag.xOffset;
-    drag.initialY = e.clientY - drag.yOffset;
-	let relPos = absToRel([e.clientX, e.clientY]);
+function dragStart(e) { // Start dragging the map-container
+    let mapRect = dom.mapContainer.getBoundingClientRect(); // Get the current bounding rectangle of the map-container
+    drag.xOffset = mapRect.left; // Set the x offset of the map-container
+    drag.yOffset = mapRect.top; // Set the y offset of the map-container
+    drag.initialX = e.clientX - drag.xOffset; // Set the initial x position of the cursor
+    drag.initialY = e.clientY - drag.yOffset; // Set the initial y position of the cursor
     if ( // TODO: Refactor this!
         e.target === drag.element || 
         e.target === document.querySelector("#map") || 
@@ -191,27 +236,58 @@ function dragStart(e) {
         Array.from(dom.labelsContainer.children).includes(e.target) || // This especially
         e.target === document.querySelector("html")
     ) {
-        drag.isDragging = true;
+        drag.isDragging = true; // Set the dragging state to true if the target should be dragged (e.g. not a link or button)
     }
 }
 
-function dragMove(e) {
-    updateLabelOpacities([e.clientX, e.clientY]);
-    if (drag.isDragging) {
-        e.preventDefault();
-        drag.currentX = e.clientX - drag.initialX;
+function dragMove(e) { // Move the map-container as the mouse moves
+    if (drag.isDragging) { // If the map-container is being dragged,
+        e.preventDefault(); // Prevent the default behavior of the event
+        drag.currentX = e.clientX - drag.initialX; // Calculate the current x and y positions of the cursor...
         drag.currentY = e.clientY - drag.initialY;
-        drag.xOffset = drag.currentX;
+        drag.xOffset = drag.currentX; // Set the x and y offsets of the map-container to the current x and y positions of the cursor...
         drag.yOffset = drag.currentY;
-        positionMapContainer([drag.currentX, drag.currentY]);
+        position(dom.mapContainer, [drag.currentX, drag.currentY]) // Position the map-container at the current x and y positions of the cursor
+        updateLabelPositions(); // Update the positions of the labels
     }
 }
 
-function dragEnd(e) {
+function dragEnd(e) { // Stop dragging the map-container, reset the dragging state and properties...
     drag.initialX = drag.currentX;
     drag.initialY = drag.currentY;
     drag.isDragging = false;
 }
+
+// UTILITIES -------------------------------------------------------------------
+
+// Sizing and Positioning
+
+function sizeElement(element, size) {
+    element.style.width = size[0] + "px"; // Set the width of the element
+    if (size[1] != null) element.style.height = size[1] + "px"; // Set the height of the element if it's not null
+}
+
+function position(element, absPos) { // Position an element at an absolute position
+    element.style.left = absPos[0] + "px";
+    element.style.top = absPos[1] + "px";
+}
+
+function centerElement(element) { // Center an element in the window TODO: Involve getCenterOf for clarity!
+    let windowWidth = window.innerWidth; // Get the window and element dimensions...
+    let windowHeight = window.innerHeight;
+    let elementWidth = element.offsetWidth;
+    let elementHeight = element.offsetHeight;
+
+    let absPos = [(windowWidth - elementWidth) / 2, (windowHeight - elementHeight) / 2] // Calculate the center position of the element in the window
+    position(element, absPos); // Position the element at the center
+}
+
+function getCenterOf(element) { // Get the center position of an element
+    let rect = element.getBoundingClientRect();
+    return [rect.left + (rect.width / 2), rect.top + (rect.height / 2)];
+}
+
+// Absolute and Relative Conversion
 
 function relToAbs(relPos) { // Convert a relative position to an absolute position
     let mapRect = dom.mapContainer.getBoundingClientRect();
@@ -221,103 +297,10 @@ function relToAbs(relPos) { // Convert a relative position to an absolute positi
     ]
 }
 
-function absToRel(absPos) {
+function absToRel(absPos) { // Convert an absolute position to a relative position
     let mapRect = dom.mapContainer.getBoundingClientRect();
     return [
         (absPos[0] - mapRect.left) / mapRect.width,
         (absPos[1] - mapRect.top) / mapRect.height
     ]
 }
-
-function mapOnScroll(direction, mouseAbsPos) {
-    let mapRect = dom.mapContainer.getBoundingClientRect();
-    let mouseRelPos = absToRel(mouseAbsPos);
-    let multiplier = 0.1;
-    // Get the new width and height of the map-container
-    let newRelWidth = (direction * multiplier) + 1;
-    let currentAbsWidth = mapRect.width;
-    let newAbsWidth = currentAbsWidth * newRelWidth;
-    let newRelHeight = (direction * multiplier) + 1;
-    let currentAbsHeight = mapRect.height;
-    let newAbsHeight = currentAbsHeight * newRelHeight;
-    // Resize the map-container
-    sizeElement(dom.mapContainer, [newAbsWidth, newAbsHeight]);
-    // Translate the map-container relative to the previous relative mouse position
-    let absPosOfPrevRelPos = relToAbs(mouseRelPos)
-    mapRect = dom.mapContainer.getBoundingClientRect();
-    let newMapPosition = [
-        mapRect.left + (-1 * (absPosOfPrevRelPos[0] - mouseAbsPos[0])),
-        mapRect.top + (-1 * (absPosOfPrevRelPos[1] - mouseAbsPos[1]))
-    ]
-    positionMapContainer(newMapPosition);
-}
-
-function positionMapContainer(position) {
-    dom.mapContainer.style.left = position[0] + "px";
-    dom.mapContainer.style.top = position[1] + "px";
-    updateLabelPositions();
-}
-
-// Dragging and panning the map-container
-
-
-
-function updateLabelOpacities(mousePos) {
-    let distances = [];
-    let labelElements = [];
-    for (let i = 0; i < data.labels.length; i++) {
-        let label = document.querySelector("#" + data.labels[i].name);
-        labelElements.push(label);
-        let labelCenter = getCenterPositionOfLabel(label);
-        distances.push(getDistanceBetweenPoints([mousePos[0], mousePos[1]], labelCenter));
-    }
-    let maximumDistance = Math.max(...distances);
-    let minimumDistance = Math.min(...distances);
-    let normalizedDistances = distances.map((distance) => (distance - minimumDistance) / (maximumDistance - minimumDistance));
-    // Set opacities of elements based on normalized distances
-    for (let i = 0; i < labelElements.length; i++) {
-        let opacity = 1 - normalizedDistances[i];
-        labelElements[i].style.opacity = opacity;
-    }
-}
-
-function getCenterPositionOfLabel(label) {
-    let labelRect = label.getBoundingClientRect();
-    return [labelRect.left + (labelRect.width / 2), labelRect.top + (labelRect.height / 2)];
-}
-
-function getDistanceBetweenPoints(point1, point2) {
-    return Math.abs(Math.sqrt(Math.pow(point2[0] - point1[0], 2) + Math.pow(point2[1] - point1[1], 2)));
-}
-
-function findClosestLabelToPoint(point) {
-    let closestLabel = null;
-    let closestDistance = Infinity;
-    for (let i = 0; i < labels.length; i++) {
-        let label = document.querySelector("#" + labels[i].name);
-        let labelCenter = getCenterPositionOfLabel(label);
-        let distance = getDistanceBetweenPoints(point, labelCenter);
-        if (distance < closestDistance) {
-            closestLabel = label;
-            closestDistance = distance;
-        }
-    }
-    return closestLabel;
-}
-
-// ----------- OLD DEPRECATED STUFF ----------------
-
-// Store the pins to create them dynamically.
-// let pins = [
-//     {
-//         name: "pin 1",
-//         relPos: [0.5, 0.5]
-//     },
-//     {
-//         name: "pin 2",
-//         relPos: [0.7, 0.3]
-//     }
-// ]
-
-// Define an offset to accurately position the pin placed (1/2 width, full height)
-// let pinOffset = [20, 80]
