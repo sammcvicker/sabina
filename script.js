@@ -4,6 +4,36 @@
 // TODO: Keep the map where it is at its current relative scale on window resize
 // TODO: Make sure the container loads at the right scale initially!
 
+// TABLE OF CONTENTS -----------------------------------------------------------
+
+// DEBUGGING
+// DATA OBJECT
+//     Calculated Constants (Map)
+//     Calculated Constants (Labels)
+//     Calculated Constants (Pins)
+// DOM OBJECT
+// INITIALIZATION OF MAP, LABELS, & PINS
+//     Map
+//     Labels
+//         makeLabelElement()
+//         updateLabelPositions()
+//     Pins
+//         makePinElement()
+//         updatePinPositions()
+// EVENT LISTENERS & THEIR FUNCTIONS
+//     Debugging
+//         logRelPos()
+//     Label Opacities
+//         updateLabelOpacities()
+//     Zooming
+//         mapScroll()
+//         zoomAndPositionMap()
+//     Dragging
+//         dragStart()
+//         dragMove()
+//         dragEnd()
+// UTILITIES
+
 // DEBUGGING -------------------------------------------------------------------
 
 let isLogRelPos = true; // Log the relative position of the cursor on mousedown
