@@ -17,6 +17,21 @@ body {
     /* background-color: lightblue; */
 }
 
+#content-container {
+    display: grid;
+    grid-template-columns: 4fr 3fr;
+    gap: 50px;
+    padding: 50px;
+    max-width: 1400px;
+    /* Vertically align grid elements to the top */
+    justify-items: flex-start;
+    margin: auto;
+}
+
+#img-container {
+    height: 100%;
+}
+
 #index {
     overflow-x: hidden;
     overflow-y: hidden;
@@ -34,6 +49,10 @@ h1 {
     margin-bottom: 50px;
     text-transform: uppercase;
     font-weight: normal;
+}
+
+blockquote {
+    font-style: italic;
 }
 
 #index h1 {
@@ -151,18 +170,10 @@ a:hover, a.active {
     text-transform: lowercase;
 }
 
-#detail {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-}
-
 #about {
     text-align: center;
 }
 
-#detail #text-content {
-    text-align: left;
-}
 
 #detail h1, #about h1 {
     margin-top: 0;
@@ -171,16 +182,17 @@ a:hover, a.active {
 
 #detail img {
     box-sizing: border-box;
-    padding: 50px;
     padding-top: 0;
     width: 100%;
     height: auto;
 }
 
 #text-content {
-    padding-right: 50px;
+    text-align: left;
+    /* padding-right: 50px; */
     padding-top: 0;
-    max-width: 650px;
+    /* max-width: 650px; */
+    text-align: justify;
 }
 
 #about img {

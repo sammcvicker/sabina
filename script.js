@@ -160,6 +160,7 @@ function makePinElement(pinData) {
     let pinElement = document.createElement("a"); // Create a new anchor element
     pinElement.id = pinData.name; // Set the id of the element
     pinElement.classList.add("map-pin"); // Add the map-pin class to the element
+    pinElement.href = pinData.src; // Set the source of the element
     pinElement.ondragstart = () => { return false; } // Disable dragging of the element
     pinElement.style.height = data.pin.height + "px"; // Set the height of the element
     dom.pinsContainer.appendChild(pinElement); // Append the element to the pins-container
