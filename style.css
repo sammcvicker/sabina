@@ -36,6 +36,8 @@ body {
     overflow-x: hidden;
     overflow-y: hidden;
     cursor: move;
+    margin: 0;
+    padding: 0;
 }
 
 img {
@@ -89,19 +91,20 @@ a:hover, a.active {
     background-image: url('./assets/map_pin_1.png');
     background-size: contain;
     background-repeat: no-repeat;
-    z-index: 100;
+    z-index: 1;
 }
 
 #map-container {
     position: absolute;
-    margin: auto;
-    mix-blend-mode: multiply;
+    margin: 0;
+    /* mix-blend-mode: multiply; */
     /* outline: 1px solid black; */
     -webkit-user-drag: none;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
+    padding: 0;
 }
 
 #map {
@@ -113,7 +116,9 @@ a:hover, a.active {
     -ms-user-select: none;
     z-index: -1;
     width: 100%;
-    mix-blend-mode: multiply;
+    /* mix-blend-mode: multiply; */
+    margin: 0;
+    padding: 0;
 }
 
 #map-overlay {
@@ -164,11 +169,14 @@ a:hover, a.active {
     bottom: 0;
     left: 0;
     width: 100%;
-    padding: 50px;
+    padding: 25px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     text-align: center;
     text-transform: lowercase;
+    background-color: white;
+    z-index: 2;
+    /* border-top: 1px solid lightgray; */
 }
 
 #about {
@@ -212,4 +220,18 @@ a:hover, a.active {
 a img {
     width: 100%;
     height: auto;
+}
+
+p.citation {
+    opacity: 0.3;
+    font-size: 0.8em;
+}
+
+p.citation a {
+    color: black;
+    opacity: 1;
+}
+
+#citations {
+    margin-top: 75px;
 }

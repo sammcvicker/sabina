@@ -1,8 +1,8 @@
-// TODO: Finalize the reflow for the detail view
-// TODO: Rename pin1
-// TODO: Update the footer design
-// TODO: Keep the map where it is at its current relative scale on window resize
-// TODO: Make sure the container loads at the right scale initially!
+// TODO: Finalize the reflow for the detail view (DONE)
+// TODO: Rename pin1 (LEAVING FOR LATER)
+// TODO: Update the footer design (DONE)
+// TODO: Keep the map where it is at its current relative scale on window resize (LATER)
+// TODO: Make sure the container loads at the right scale initially! (WORKING)
 
 // TABLE OF CONTENTS -----------------------------------------------------------
 
@@ -51,7 +51,6 @@ let isLogRelPos = true; // Log the relative position of the cursor on mousedown
 let data = {
     map: {
         resolution: [4800, 2700], // The native resolution of the map in pixels
-        initialScale: 0.25, // The initial scale of the map (TO BE DEPRECATED)
     },
     label: {
         resolution: [700, 216], // The native resolution of the labels in pixels
@@ -128,6 +127,19 @@ let data = {
 }
 
 // Calculated Constants (Map)
+
+// Calculate a scale factor for the map to fill up the viewport...
+let viewportWidth = window.innerWidth; // Get the width of the viewport
+let viewportHeight = window.innerHeight; // Get the height of the viewport
+let viewportAspect = viewportWidth / viewportHeight; // Calculate the aspect ratio of the viewport
+let mapAspect = data.map.resolution[0] / data.map.resolution[1]; // Calculate the aspect ratio of the map
+if (viewportAspect < mapAspect) { // If the viewport is taller than the map,
+    data.map.initialScale = viewportHeight / data.map.resolution[1]; // Scale the map to fill the height of the viewport
+}
+else { // If the viewport is wider than the map,
+    data.map.initialScale = viewportWidth / data.map.resolution[0]; // Scale the map to fill the width of the viewport
+}
+
 
 data.map.initialSize = [ // Calculate the initial size of the map-container...
     data.map.resolution[0] * data.map.initialScale, 
