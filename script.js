@@ -103,9 +103,6 @@ for (let i = 0; i < labels.length; i++) {
 	makeLabel(labels[i]);
 }
 
-// Update the scales of all the labels
-// updateLabelScales();
-
 // Update the positions of all the labels
 updateLabelPositions();
 
@@ -118,17 +115,6 @@ function makeLabel(labelData) {
     let mapLabels = document.querySelector("#map-labels");
     mapLabels.appendChild(label);
 }
-
-// function updateLabelScales() {
-//     let mapRect = mapContainer.getBoundingClientRect();
-//     let mapWidth = mapRect.width;
-//     let scaleFactor = mapWidth / mapResolution[0];
-//     let newLabelWidth = labelResolution[0] * scaleFactor;
-//     for (let i = 0; i < labels.length; i++) {
-//         let label = document.querySelector("#" + labels[i].name);
-//         sizeElement(label, [newLabelWidth, null]);
-//     }
-// }
 
 function updateLabelPositions() {
 	for (let i = 0; i < labels.length; i++) {
@@ -151,7 +137,6 @@ onwheel = (event) => {
 // Log the relative position of the cursor on mousemove anywhere within the window
 window.addEventListener("mousedown", (e) => {
     let relPos = absToRel([e.clientX, e.clientY]);
-    // console.log(relPos);
 })
 
 // Store the pins to create them dynamically.
@@ -220,18 +205,7 @@ function mapOnScroll(direction, mouseAbsPos) {
         mapRect.top + (-1 * (absPosOfPrevRelPos[1] - mouseAbsPos[1]))
     ]
     positionMapContainer(newMapPosition);
-    // updateLabelPositions();
 }
-
-// function translateMapContainer(dimensions) {
-//     let mapRect = mapContainer.getBoundingClientRect();
-//     // Convert the dimensions to absolute points for the positionMapContainer function
-//     position = [
-//         mapRect.left + dimensions[0],
-//         mapRect.top + dimensions[1]
-//     ]
-//     positionMapContainer(position);
-// }
 
 function positionMapContainer(position) {
     mapContainer.style.left = position[0] + "px";
@@ -261,8 +235,6 @@ function dragStart(e) {
     initialY = e.clientY - yOffset;
 	let relPos = absToRel([e.clientX, e.clientY]);
 	console.log(relPos);
-    // let mapLabelsChildren = mapLabels.children;
-    // if (mapLabels.children.includes(e.target)) {}
     if (
         e.target === dragElement || 
         e.target === document.querySelector("#map") || 
@@ -303,12 +275,6 @@ function updateLabelOpacities(mousePos) {
         let opacity = 1 - normalizedDistances[i];
         labelElements[i].style.opacity = opacity;
     }
-    closestLabel = findClosestLabelToPoint([mousePos[0], mousePos[1]]);
-    let shownLabels = document.querySelectorAll(".label-shown");
-    for (let i = 0; i < shownLabels.length; i++) {
-        if (shownLabels[i] !== closestLabel) shownLabels[i].classList.remove("label-shown");
-    }
-    // closestLabel.classList.add("label-shown");
 }
 
 function dragEnd(e) {
