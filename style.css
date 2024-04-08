@@ -131,14 +131,6 @@ a:hover, a.active {
     opacity: 0.5;
 }
 
-#map-labels .label-shown {
-    opacity: 1;
-}
-
-#dummy-image {
-    opacity: 0;
-}
-
 #footer {
     box-sizing: border-box;
     position: fixed;
