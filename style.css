@@ -128,7 +128,7 @@ a:hover, a.active {
     -ms-user-select: none;
     width: 264px;
     transition: opacity 300ms;
-    opacity: 0;
+    opacity: 0.5;
 }
 
 #map-labels .label-shown {

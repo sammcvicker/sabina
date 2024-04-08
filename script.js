@@ -271,13 +271,25 @@ function dragStart(e) {
 }
 
 function drag(e) {
+    updateLabelOpacities([e.clientX, e.clientY]);
+    if (isDragging) {
+        e.preventDefault();
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+        xOffset = currentX;
+        yOffset = currentY;
+        positionMapContainer([currentX, currentY]);
+    }
+}
+
+function updateLabelOpacities(mousePos) {
     let distances = [];
     let labelElements = [];
     for (let i = 0; i < labels.length; i++) {
         let label = document.querySelector("#" + labels[i].name);
         labelElements.push(label);
         let labelCenter = getCenterPositionOfLabel(label);
-        distances.push(getDistanceBetweenPoints([e.clientX, e.clientY], labelCenter));
+        distances.push(getDistanceBetweenPoints([mousePos[0], mousePos[1]], labelCenter));
     }
     let maximumDistance = Math.max(...distances);
     let minimumDistance = Math.min(...distances);
@@ -287,20 +299,12 @@ function drag(e) {
         let opacity = 1 - normalizedDistances[i];
         labelElements[i].style.opacity = opacity;
     }
-    closestLabel = findClosestLabelToPoint([e.clientX, e.clientY]);
+    closestLabel = findClosestLabelToPoint([mousePos[0], mousePos[1]]);
     let shownLabels = document.querySelectorAll(".label-shown");
     for (let i = 0; i < shownLabels.length; i++) {
         if (shownLabels[i] !== closestLabel) shownLabels[i].classList.remove("label-shown");
     }
     // closestLabel.classList.add("label-shown");
-    if (isDragging) {
-        e.preventDefault();
-        currentX = e.clientX - initialX;
-        currentY = e.clientY - initialY;
-        xOffset = currentX;
-        yOffset = currentY;
-        positionMapContainer([currentX, currentY]);
-    }
 }
 
 function dragEnd(e) {
