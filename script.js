@@ -1,15 +1,16 @@
-// ----------------- TO DO -----------------
-
+// TODO ---------------------------
 // TODO: Merge translateMapContainer and positionMapContainer into one function; deprecate translateMapContainer
 // TODO: Keep the map where it is at its current relative scale on window resize
 // TODO: Implement a function to create pins from array of objects
 // TODO: Implement a function to update pin positions
 // TODO: Make sure the container loads at the right scale initially!
 
+// DEBUGGING ------------------------
 
-// ----------------- DATA -----------------
+let isLogRelPos = true; // Log the relative position of the cursor on mousedown
 
-// 1. CONSTANTS --------------------------
+// DATA OBJECT --------------------------
+// ------------- INITIAL CONSTANTS
 let data = {
     map: {
         resolution: [4800, 2700], // The native resolution of the map in pixels
@@ -77,32 +78,27 @@ let data = {
         }
     ]
 }
-
-// 2. MAP DERIVATIVES --------------------------
+// ------------- CALCULATED CONSTANTS (MAP)
 data.map.initialSize = [ // Calculate the initial size of the map-container
     data.map.resolution[0] * data.map.initialScale, 
     data.map.resolution[1] * data.map.initialScale
 ]
-
-// 3. LABEL DERIVATIVES --------------------------
+// ------------- CALCULATED CONSTANTS (LABELS)
 data.label.height = data.label.resolution[1] * (data.label.width / data.label.resolution[0]); // Determine the label height in pixels from the width and resolution
 data.label.size = [data.label.width, data.label.height]; // Store the actual label size in pixels
 data.label.offset = [data.label.size[0] / 2, data.label.size[1] / 2]; // Store the label offset in pixels (1/2 width, 1/2 height)
 
-
-// ----------------- DOM -----------------
-
+// DOM OBJECT --------------------------------
 let dom = {
     mapContainer: document.querySelector("#map-container"),
     labelsContainer: document.querySelector("#labels-container")
 }
 
-// ----------------- MAP -----------------
-
+// MAP CONTAINER SETUP ----------------------
 sizeElement(dom.mapContainer, data.map.initialSize); // Size the map-container
 centerElement(dom.mapContainer); // Center the map-container
 
-// 2. LABEL CREATION ----------------------
+// LABEL CREATION ---------------------------
 for (let i = 0; i < data.labels.length; i++) { // For each label
 	data.labels[i].element = (makeLabelElement(data.labels[i])); // Create an element and store it in data.labels[i].element
 }
@@ -146,33 +142,78 @@ function updateLabelPositions() {
     }
 }
 
-onwheel = (event) => {
-    let mouseAbsPos = [event.clientX, event.clientY]
-    if (event.deltaY > 0) mapOnScroll(-1, mouseAbsPos)
-    else if (event.deltaY < 0) mapOnScroll(1, mouseAbsPos)
+// EVENT LISTENERS ---------------------------
+// -------------------------- DEBUGGING EVENTS
+if (isLogRelPos) window.addEventListener("mousedown", logRelPos); // Log the relative position of the cursor on mousedown
+// ----------------------------------- ZOOMING
+window.addEventListener("wheel", mapScroll); // Zoom in and out on the map on scroll
+// ----------------------------------- DRAGGING
+window.addEventListener('mousedown', dragStart);
+window.addEventListener('mouseup', dragEnd);
+window.addEventListener('mousemove', dragMove);
+
+// CALLABLES ---------------------------------
+
+function logRelPos(e) { // Log the relative position of the cursor on mousedown
+    let relPos = absToRel([e.clientX, e.clientY]); // Convert the absolute position of the cursor to a relative position
+    console.log(relPos); // Log the relative position
 }
 
-// Log the relative position of the cursor on mousemove anywhere within the window
-window.addEventListener("mousedown", (e) => {
-    let relPos = absToRel([e.clientX, e.clientY]);
-})
+function mapScroll(event) { // Zoom in and out on the map on scroll
+    let mouseAbsPos = [event.clientX, event.clientY] // Store the absolute position of the cursor
+    if (event.deltaY > 0) mapOnScroll(-1, mouseAbsPos) // If the scroll direction is down, zoom out
+    else if (event.deltaY < 0) mapOnScroll(1, mouseAbsPos) // If the scroll direction is up, zoom in
+}
 
-// Store the pins to create them dynamically.
-let pins = [
-    {
-        name: "pin 1",
-        relPos: [0.5, 0.5]
-    },
-    {
-        name: "pin 2",
-        relPos: [0.7, 0.3]
+// ----------------------------------- DRAGGING
+
+let drag = {
+    isDragging: false,
+    currentX: null,
+    currentY: null,
+    initialX: null,
+    initialY: null,
+    xOffset: null,
+    yOffset: null,
+    element: dom.mapContainer
+}
+
+function dragStart(e) {
+    drag.xOffset = dom.mapContainer.getBoundingClientRect().left;
+    drag.yOffset = dom.mapContainer.getBoundingClientRect().top;
+    drag.initialX = e.clientX - drag.xOffset;
+    drag.initialY = e.clientY - drag.yOffset;
+	let relPos = absToRel([e.clientX, e.clientY]);
+    if ( // TODO: Refactor this!
+        e.target === drag.element || 
+        e.target === document.querySelector("#map") || 
+        e.target ===  dom.labelsContainer || 
+        Array.from(dom.labelsContainer.children).includes(e.target) || // This especially
+        e.target === document.querySelector("html")
+    ) {
+        drag.isDragging = true;
     }
-]
+}
 
-// Define an offset to accurately position the pin placed (1/2 width, full height)
-let pinOffset = [20, 80]
+function dragMove(e) {
+    updateLabelOpacities([e.clientX, e.clientY]);
+    if (drag.isDragging) {
+        e.preventDefault();
+        drag.currentX = e.clientX - drag.initialX;
+        drag.currentY = e.clientY - drag.initialY;
+        drag.xOffset = drag.currentX;
+        drag.yOffset = drag.currentY;
+        positionMapContainer([drag.currentX, drag.currentY]);
+    }
+}
 
-function relToAbs(relPos) {
+function dragEnd(e) {
+    drag.initialX = drag.currentX;
+    drag.initialY = drag.currentY;
+    drag.isDragging = false;
+}
+
+function relToAbs(relPos) { // Convert a relative position to an absolute position
     let mapRect = dom.mapContainer.getBoundingClientRect();
     return [
         mapRect.left + (relPos[0] * mapRect.width),
@@ -219,48 +260,7 @@ function positionMapContainer(position) {
 
 // Dragging and panning the map-container
 
-let isDragging = false;
-let currentX;
-let currentY;
-let initialX;
-let initialY;
-let xOffset;
-let yOffset;
-const dragElement = dom.mapContainer;
 
-window.addEventListener('mousedown', dragStart);
-window.addEventListener('mouseup', dragEnd);
-window.addEventListener('mousemove', drag);
-
-function dragStart(e) {
-    xOffset = dom.mapContainer.getBoundingClientRect().left;
-    yOffset = dom.mapContainer.getBoundingClientRect().top;
-    initialX = e.clientX - xOffset;
-    initialY = e.clientY - yOffset;
-	let relPos = absToRel([e.clientX, e.clientY]);
-	console.log(relPos);
-    if (
-        e.target === dragElement || 
-        e.target === document.querySelector("#map") || 
-        e.target ===  dom.labelsContainer || 
-        Array.from(dom.labelsContainer.children).includes(e.target) || 
-        e.target === document.querySelector("html")
-    ) {
-        isDragging = true;
-    }
-}
-
-function drag(e) {
-    updateLabelOpacities([e.clientX, e.clientY]);
-    if (isDragging) {
-        e.preventDefault();
-        currentX = e.clientX - initialX;
-        currentY = e.clientY - initialY;
-        xOffset = currentX;
-        yOffset = currentY;
-        positionMapContainer([currentX, currentY]);
-    }
-}
 
 function updateLabelOpacities(mousePos) {
     let distances = [];
@@ -279,12 +279,6 @@ function updateLabelOpacities(mousePos) {
         let opacity = 1 - normalizedDistances[i];
         labelElements[i].style.opacity = opacity;
     }
-}
-
-function dragEnd(e) {
-    initialX = currentX;
-    initialY = currentY;
-    isDragging = false;
 }
 
 function getCenterPositionOfLabel(label) {
@@ -310,3 +304,20 @@ function findClosestLabelToPoint(point) {
     }
     return closestLabel;
 }
+
+// ----------- OLD DEPRECATED STUFF ----------------
+
+// Store the pins to create them dynamically.
+// let pins = [
+//     {
+//         name: "pin 1",
+//         relPos: [0.5, 0.5]
+//     },
+//     {
+//         name: "pin 2",
+//         relPos: [0.7, 0.3]
+//     }
+// ]
+
+// Define an offset to accurately position the pin placed (1/2 width, full height)
+// let pinOffset = [20, 80]
