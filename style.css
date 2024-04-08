@@ -112,14 +112,14 @@ a:hover, a.active {
     -ms-user-select: none;
 }
 
-#map-labels {
+#labels-container {
     /* display: none; */
     position: absolute;
     z-index: 1;
     width: 100%;
 }
 
-#map-labels * {
+#labels-container * {
     position: absolute;
     -webkit-user-drag: none;
     user-select: none;
