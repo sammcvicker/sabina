@@ -66,7 +66,7 @@ let labels = [
 let labelResolution = [700, 216];
 
 // Store the actual label width in pixels
-let labelWidth = 200;
+let labelWidth = 264;
 
 // Store the actual label size in pixels
 let labelSize = [labelWidth, labelResolution[1] * (labelWidth / labelResolution[0])];
@@ -259,12 +259,40 @@ function dragStart(e) {
 	console.log(relPos);
     // let mapLabelsChildren = mapLabels.children;
     // if (mapLabels.children.includes(e.target)) {}
-    if (e.target === dragElement || e.target === document.querySelector("#map") || e.target ===  mapLabels || Array.from(mapLabels.children).includes(e.target) || e.target === document.querySelector("html")) {
+    if (
+        e.target === dragElement || 
+        e.target === document.querySelector("#map") || 
+        e.target ===  mapLabels || 
+        Array.from(mapLabels.children).includes(e.target) || 
+        e.target === document.querySelector("html")
+    ) {
         isDragging = true;
     }
 }
 
 function drag(e) {
+    let distances = [];
+    let labelElements = [];
+    for (let i = 0; i < labels.length; i++) {
+        let label = document.querySelector("#" + labels[i].name);
+        labelElements.push(label);
+        let labelCenter = getCenterPositionOfLabel(label);
+        distances.push(getDistanceBetweenPoints([e.clientX, e.clientY], labelCenter));
+    }
+    let maximumDistance = Math.max(...distances);
+    let minimumDistance = Math.min(...distances);
+    let normalizedDistances = distances.map((distance) => (distance - minimumDistance) / (maximumDistance - minimumDistance));
+    // Set opacities of elements based on normalized distances
+    for (let i = 0; i < labelElements.length; i++) {
+        let opacity = 1 - normalizedDistances[i];
+        labelElements[i].style.opacity = opacity;
+    }
+    closestLabel = findClosestLabelToPoint([e.clientX, e.clientY]);
+    let shownLabels = document.querySelectorAll(".label-shown");
+    for (let i = 0; i < shownLabels.length; i++) {
+        if (shownLabels[i] !== closestLabel) shownLabels[i].classList.remove("label-shown");
+    }
+    // closestLabel.classList.add("label-shown");
     if (isDragging) {
         e.preventDefault();
         currentX = e.clientX - initialX;
@@ -283,4 +311,28 @@ function dragEnd(e) {
 
 function setTranslate(xPos, yPos, el) {
     el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+}
+
+function getCenterPositionOfLabel(label) {
+    let labelRect = label.getBoundingClientRect();
+    return [labelRect.left + (labelRect.width / 2), labelRect.top + (labelRect.height / 2)];
+}
+
+function getDistanceBetweenPoints(point1, point2) {
+    return Math.abs(Math.sqrt(Math.pow(point2[0] - point1[0], 2) + Math.pow(point2[1] - point1[1], 2)));
+}
+
+function findClosestLabelToPoint(point) {
+    let closestLabel = null;
+    let closestDistance = Infinity;
+    for (let i = 0; i < labels.length; i++) {
+        let label = document.querySelector("#" + labels[i].name);
+        let labelCenter = getCenterPositionOfLabel(label);
+        let distance = getDistanceBetweenPoints(point, labelCenter);
+        if (distance < closestDistance) {
+            closestLabel = label;
+            closestDistance = distance;
+        }
+    }
+    return closestLabel;
 }
