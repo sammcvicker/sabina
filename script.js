@@ -33,6 +33,14 @@
 //         dragMove()
 //         dragEnd()
 // UTILITIES
+//     Sizing and Positioning
+//         sizeElement()
+//         position()
+//         centerElement()
+//         getCenterOf()
+//     Absolute and Relative Conversion
+//         relToAbs()
+//         absToRel()
 
 // DEBUGGING -------------------------------------------------------------------
 
