@@ -214,20 +214,24 @@ function mapOnScroll(direction, mouseAbsPos) {
     sizeElement(mapContainer, [newAbsWidth, newAbsHeight]);
     // Translate the map-container relative to the previous relative mouse position
     let absPosOfPrevRelPos = relToAbs(mouseRelPos)
-    let absPosDifference = [
-        -1 * (absPosOfPrevRelPos[0] - mouseAbsPos[0]),
-        -1 * (absPosOfPrevRelPos[1] - mouseAbsPos[1])
+    mapRect = mapContainer.getBoundingClientRect();
+    let newMapPosition = [
+        mapRect.left + (-1 * (absPosOfPrevRelPos[0] - mouseAbsPos[0])),
+        mapRect.top + (-1 * (absPosOfPrevRelPos[1] - mouseAbsPos[1]))
     ]
-    translateMapContainer(absPosDifference);
-    updateLabelPositions();
+    positionMapContainer(newMapPosition);
+    // updateLabelPositions();
 }
 
-function translateMapContainer(dimensions) {
-    let mapRect = mapContainer.getBoundingClientRect();
-    mapContainer.style.left = mapRect.left + dimensions[0] + "px";
-    mapContainer.style.top = mapRect.top + dimensions[1] + "px";
-    updateLabelPositions();
-}
+// function translateMapContainer(dimensions) {
+//     let mapRect = mapContainer.getBoundingClientRect();
+//     // Convert the dimensions to absolute points for the positionMapContainer function
+//     position = [
+//         mapRect.left + dimensions[0],
+//         mapRect.top + dimensions[1]
+//     ]
+//     positionMapContainer(position);
+// }
 
 function positionMapContainer(position) {
     mapContainer.style.left = position[0] + "px";
@@ -311,10 +315,6 @@ function dragEnd(e) {
     initialX = currentX;
     initialY = currentY;
     isDragging = false;
-}
-
-function setTranslate(xPos, yPos, el) {
-    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
 }
 
 function getCenterPositionOfLabel(label) {
