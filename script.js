@@ -9,6 +9,7 @@
 // DEBUGGING
 // DATA OBJECT
 //     Calculated Constants (Map)
+//         calculateInitialScale()
 //     Calculated Constants (Labels)
 //     Calculated Constants (Pins)
 // DOM OBJECT
@@ -128,23 +129,24 @@ let data = {
 
 // Calculated Constants (Map)
 
-// Calculate a scale factor for the map to fill up the viewport...
-let viewportWidth = window.innerWidth; // Get the width of the viewport
-let viewportHeight = window.innerHeight; // Get the height of the viewport
-let viewportAspect = viewportWidth / viewportHeight; // Calculate the aspect ratio of the viewport
-let mapAspect = data.map.resolution[0] / data.map.resolution[1]; // Calculate the aspect ratio of the map
-if (viewportAspect < mapAspect) { // If the viewport is taller than the map,
-    data.map.initialScale = viewportHeight / data.map.resolution[1]; // Scale the map to fill the height of the viewport
-}
-else { // If the viewport is wider than the map,
-    data.map.initialScale = viewportWidth / data.map.resolution[0]; // Scale the map to fill the width of the viewport
-}
-
-
-data.map.initialSize = [ // Calculate the initial size of the map-container...
+data.map.initialScale = calculateInitialScale(); // The initial scale of the map to fill the viewport
+data.map.initialSize = [ // Calculate the initial size of the map-container from that scale factor...
     data.map.resolution[0] * data.map.initialScale, 
     data.map.resolution[1] * data.map.initialScale
 ]
+
+function calculateInitialScale() { // Calculate a scale factor for the map to fill up the viewport...
+    let viewportWidth = window.innerWidth; // Get the width of the viewport
+    let viewportHeight = window.innerHeight; // Get the height of the viewport
+    let viewportAspect = viewportWidth / viewportHeight; // Calculate the aspect ratio of the viewport
+    let mapAspect = data.map.resolution[0] / data.map.resolution[1]; // Calculate the aspect ratio of the map
+    if (viewportAspect < mapAspect) { // If the viewport is taller than the map,
+        return viewportHeight / data.map.resolution[1]; // Set to height of the viewport
+    }
+    else { // If the viewport is wider than the map,
+        return viewportWidth / data.map.resolution[0]; // Set to width of the viewport
+    }
+}
 
 // Calculated Constants (Labels)
 
@@ -333,7 +335,8 @@ function dragStart(e) { // Start dragging the map-container...
         e.target === document.querySelector("#map") || 
         e.target ===  dom.labelsContainer || 
         Array.from(dom.labelsContainer.children).includes(e.target) || // This especially
-        e.target === document.querySelector("html")
+        e.target === document.querySelector("html") ||
+        e.target === document.querySelector("#map-title")
     ) {
         drag.isDragging = true; // Set the dragging state to true if the target should be dragged (e.g. not a link or button)
     }

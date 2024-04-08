@@ -107,6 +107,24 @@ a:hover, a.active {
     padding: 0;
 }
 
+#map-title {
+    display: none;
+    position: fixed;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    z-index: 2;
+    width: 100%;
+    /* mix-blend-mode: multiply; */
+    margin: 0;
+    padding: 0;
+    top: 0;
+    left: 0;
+    width: 250px;
+}
+
 #map {
     position: absolute;
     -webkit-user-drag: none;
