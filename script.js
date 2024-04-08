@@ -1,5 +1,5 @@
-// TODO: Keep the map where it is at its current relative scale on window resize
 // TODO: Implement a function to create pins from array of objects
+// TODO: Keep the map where it is at its current relative scale on window resize
 // TODO: Implement a function to update pin positions
 // TODO: Make sure the container loads at the right scale initially!
 
@@ -74,6 +74,17 @@ let data = {
             src: "./assets/labels/label_lower_manhattan.png",
             relPos: [0.5466666666666666, 0.74]
         }
+    ],
+    pin: {
+        resolution: [168, 305], // The native resolution of the pins in pixels
+        width: 40 // The actual width of the pin in pixels (defined in stylesheet)
+    },
+    pins: [
+        { // The names, sources, and relative positions of the pins to show on the map (the element property will be populated later)
+            name: "pin1",
+            src: "./pin1.html",
+            relPos: [0.5, 0.5]
+        }
     ]
 }
 
@@ -90,14 +101,21 @@ data.label.height = data.label.resolution[1] * (data.label.width / data.label.re
 data.label.size = [data.label.width, data.label.height]; // Store the actual label size in pixels
 data.label.offset = [data.label.size[0] / 2, data.label.size[1] / 2]; // Store the label offset in pixels (1/2 width, 1/2 height)
 
+// Calculated Constants (Pins)
+
+data.pin.height = data.pin.resolution[1] * (data.pin.width / data.pin.resolution[0]); // Determine the pin height in pixels from the width and resolution
+data.pin.size = [data.pin.width, data.pin.height]; // Store the actual pin size in pixels
+data.pin.offset = [data.pin.size[0] / 2, data.pin.size[1]]; // Store the pin offset in pixels (1/2 width, height)
+
 // DOM OBJECT ------------------------------------------------------------------
 
 let dom = {
     mapContainer: document.querySelector("#map-container"),
-    labelsContainer: document.querySelector("#labels-container")
+    labelsContainer: document.querySelector("#labels-container"),
+    pinsContainer: document.querySelector("#pins-container")
 }
 
-// INITIALIZATION OF MAP AND LABELS -------------------------------------------
+// INITIALIZATION OF MAP, LABELS, & PINS -------------------------------------------
 
 // Map
 
@@ -128,6 +146,34 @@ function updateLabelPositions() {
         let mapRect = dom.mapContainer.getBoundingClientRect(); // Get the current bounding rectangle of the map-container
         label.style.left = (absPos[0] - data.label.offset[0] - mapRect.left) + "px"; // Set the left position of the label
         label.style.top = (absPos[1] - data.label.offset[1] - mapRect.top) + "px"; // Set the top position of the label
+    }
+}
+
+// Pins
+
+for (let i = 0; i < data.pins.length; i++) { // For each pin,
+    data.pins[i].element = (makePinElement(data.pins[i])); // Create an element and store it in data.pins[i].element
+}
+updatePinPositions(); // Update the positions of all the pins (MAYBE MOVE)
+
+function makePinElement(pinData) {
+    let pinElement = document.createElement("a"); // Create a new anchor element
+    pinElement.id = pinData.name; // Set the id of the element
+    pinElement.classList.add("map-pin"); // Add the map-pin class to the element
+    pinElement.ondragstart = () => { return false; } // Disable dragging of the element
+    pinElement.style.height = data.pin.height + "px"; // Set the height of the element
+    dom.pinsContainer.appendChild(pinElement); // Append the element to the pins-container
+    console.log(pinElement);
+    return pinElement;
+}
+
+function updatePinPositions() {
+	for (let i = 0; i < data.pins.length; i++) { // For each pin
+        let pin = data.pins[i].element; // Get the pin element
+        let absPos = relToAbs(data.pins[i].relPos); // Convert its relative position to an absolute position
+        let mapRect = dom.mapContainer.getBoundingClientRect(); // Get the current bounding rectangle of the map-container
+        pin.style.left = (absPos[0] - data.pin.offset[0] - mapRect.left) + "px"; // Set the left position of the pin
+        pin.style.top = (absPos[1] - data.pin.offset[1] - mapRect.top) + "px"; // Set the top position of the pin
     }
 }
 
@@ -203,6 +249,7 @@ function zoomAndPositionMap(direction, mouseAbsPos) { // TODO: Refactor for read
     ]
     position(dom.mapContainer, newMapPosition); // Set the new position of the map-container
     updateLabelPositions(); // Update the positions of the labels
+    updatePinPositions(); // Update the positions of the pins
 
 }
 
@@ -249,6 +296,7 @@ function dragMove(e) { // Move the map-container as the mouse moves
         drag.yOffset = drag.currentY;
         position(dom.mapContainer, [drag.currentX, drag.currentY]) // Position the map-container at the current x and y positions of the cursor
         updateLabelPositions(); // Update the positions of the labels
+        updatePinPositions(); // Update the positions of the pins
     }
 }
 

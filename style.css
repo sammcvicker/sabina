@@ -49,7 +49,7 @@ h2 {
     font-weight: normal;
 }
 
-a {
+a:not(.map-pin) {
     color: lightgray;
     text-decoration: none;
     transition: 500ms;
@@ -60,16 +60,16 @@ a:hover, a.active {
     color: black;
 }
 
-.pin {
+.map-pin {
+    display: block;
+    position: absolute;
     margin: 0;
     padding: 0;
     width: 40px;
-    height: 80px;
     background-image: url('./assets/map_pin_1.png');
     background-size: contain;
     background-repeat: no-repeat;
-    position: absolute;
-    transition: 20ms;
+    z-index: 100;
 }
 
 #map-container {
@@ -113,6 +113,13 @@ a:hover, a.active {
 }
 
 #labels-container {
+    /* display: none; */
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+}
+
+#pins-container {
     /* display: none; */
     position: absolute;
     z-index: 1;
