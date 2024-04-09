@@ -1,8 +1,7 @@
-// TODO: Finalize the reflow for the detail view (DONE)
 // TODO: Rename pin1 (LEAVING FOR LATER)
-// TODO: Update the footer design (DONE)
 // TODO: Keep the map where it is at its current relative scale on window resize (LATER)
 // TODO: Make sure the container loads at the right scale initially! (WORKING)
+// TODO: Take some liberties with the arrangement of the title!
 
 // TABLE OF CONTENTS -----------------------------------------------------------
 
