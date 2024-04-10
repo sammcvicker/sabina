@@ -1,6 +1,5 @@
 // TODO: Rename pin1 (LEAVING FOR LATER)
 // TODO: Keep the map where it is at its current relative scale on window resize (LATER)
-// TODO: Make sure the container loads at the right scale initially! (WORKING)
 // TODO: Take some liberties with the arrangement of the title!
 
 // TABLE OF CONTENTS -----------------------------------------------------------
@@ -13,6 +12,7 @@
 //     Calculated Constants (Pins)
 // DOM OBJECT
 // INITIALIZATION OF MAP, LABELS, & PINS
+//     Window
 //     Map
 //     Labels
 //         makeLabelElement()
@@ -38,9 +38,15 @@
 //         position()
 //         centerElement()
 //         getCenterOf()
+//         constrainPositionToWindow()
+//         constrainSizeToWindow()
+//         getWindowScaleByHypoteneuse()
+//         getElementScaleByHypoteneuse()
 //     Absolute and Relative Conversion
 //         relToAbs()
 //         absToRel()
+//         windowRelToAbs()
+//         windowAbsToRel()
 
 // DEBUGGING -------------------------------------------------------------------
 
@@ -49,8 +55,14 @@ let isLogRelPos = true; // Log the relative position of the cursor on mousedown
 // DATA OBJECT -----------------------------------------------------------------
 
 let data = {
+    window: {
+        currentHypoteneuse: null // The current hypoteneuse of the window (will be calculated later)
+    },
     map: {
         resolution: [4800, 2700], // The native resolution of the map in pixels
+        currentHypoteneuse: null, // The current scale of the map (will be calculated later)
+        targetWindowCenterRelPos: null, // The current relative position of the map in the window (will be calculated later)
+        temporaryWindowCenterRelPos: null // The temporary relative position of the map in the window (will be calculated later)
     },
     label: {
         resolution: [700, 216], // The native resolution of the labels in pixels
@@ -169,10 +181,16 @@ let dom = {
 
 // INITIALIZATION OF MAP, LABELS, & PINS -------------------------------------------
 
+// Window
+
+data.window.currentHypoteneuse = getWindowScaleByHypoteneuse(); // Calculate the current hypoteneuse of the window
+
 // Map
 
 sizeElement(dom.mapContainer, data.map.initialSize); // Size the map-container
 centerElement(dom.mapContainer); // Center the map-container
+data.map.currentHypoteneuse = getElementScaleByHypoteneuse(dom.mapContainer); // Calculate the current scale of the map-container
+data.map.targetWindowCenterRelPos = absToRel([window.width / 2, window.height / 2]); // Calculate the relative position of the center of the window on the map
 
 // Labels
 
@@ -293,17 +311,20 @@ function zoomAndPositionMap(direction, mouseAbsPos) { // TODO: Refactor for read
     let newRelHeight = (direction * multiplier) + 1;
     let currentAbsHeight = mapRect.height;
     let newAbsHeight = currentAbsHeight * newRelHeight;
-    sizeElement(dom.mapContainer, [newAbsWidth, newAbsHeight]); // Set the new width and height of the map-container
+    let newAbsSize = [newAbsWidth, newAbsHeight];
+    let constrainedSize = constrainSizeToWindow(newAbsSize); // Constrain the new size of the map-container to the window
+    sizeElement(dom.mapContainer, constrainedSize); // Set the new width and height of the map-container
     let absPosOfPrevRelPos = relToAbs(mouseRelPos); // Convert the old relative position of cursor to an absolute position
     mapRect = dom.mapContainer.getBoundingClientRect(); // Get the new bounding rectangle of the map-container
     let newMapPosition = [ // Calculate the new position of the map-container...
         mapRect.left + (-1 * (absPosOfPrevRelPos[0] - mouseAbsPos[0])),
         mapRect.top + (-1 * (absPosOfPrevRelPos[1] - mouseAbsPos[1]))
     ]
-    position(dom.mapContainer, newMapPosition); // Set the new position of the map-container
+    position(dom.mapContainer, constrainPositionToWindow(newMapPosition)); // Set the new position of the map-container, constrained to the window
     updateLabelPositions(); // Update the positions of the labels
     updatePinPositions(); // Update the positions of the pins
-
+    data.map.currentHypoteneuse = getElementScaleByHypoteneuse(dom.mapContainer); // Update the current scale of the map-container
+    data.map.targetWindowCenterRelPos = absToRel([window.width / 2, window.height / 2]); // Update the current relative position of the map in the window
 }
 
 // Dragging
@@ -348,9 +369,10 @@ function dragMove(e) { // Move the map-container as the mouse moves...
         drag.currentY = e.clientY - drag.initialY;
         drag.xOffset = drag.currentX; // Set the x and y offsets of the map-container to the current x and y positions of the cursor...
         drag.yOffset = drag.currentY;
-        position(dom.mapContainer, [drag.currentX, drag.currentY]) // Position the map-container at the current x and y positions of the cursor
+        position(dom.mapContainer, constrainPositionToWindow([drag.currentX, drag.currentY])) // Position the map-container at the current x and y positions of the cursor
         updateLabelPositions(); // Update the positions of the labels
         updatePinPositions(); // Update the positions of the pins
+        data.map.targetWindowCenterRelPos = absToRel([window.width / 2, window.height / 2]); // Update the current relative position of window center on the map
     }
 }
 
@@ -358,6 +380,15 @@ function dragEnd(e) { // Stop dragging the map-container, reset the dragging sta
     drag.initialX = drag.currentX;
     drag.initialY = drag.currentY;
     drag.isDragging = false;
+}
+
+// Resizing
+
+window.addEventListener('resize', maintainRelativeCenterAndScale); // Create a listener that calls resizeAtRelativeScale on resize
+
+function maintainRelativeCenterAndScale(e) { // Resize the map-container to maintain its current relative scale...
+    data.map.temporaryWindowCenterRelPos = absToRel([window.width / 2, window.height / 2]); // Calculate the temporary relative position of the center of the window on the map
+    positionElementByRelativeOffset(dom.mapContainer, data.map.temporaryWindowCenterRelPos, data.map.targetWindowCenterRelPos); // Position the map-container at the temporary relative position of the center of the window
 }
 
 // UTILITIES -------------------------------------------------------------------
@@ -379,7 +410,6 @@ function centerElement(element) { // Center an element in the window TODO: Invol
     let windowHeight = window.innerHeight;
     let elementWidth = element.offsetWidth;
     let elementHeight = element.offsetHeight;
-
     let absPos = [(windowWidth - elementWidth) / 2, (windowHeight - elementHeight) / 2] // Calculate the center position of the element in the window
     position(element, absPos); // Position the element at the center
 }
@@ -387,6 +417,45 @@ function centerElement(element) { // Center an element in the window TODO: Invol
 function getCenterOf(element) { // Get the center position of an element...
     let rect = element.getBoundingClientRect();
     return [rect.left + (rect.width / 2), rect.top + (rect.height / 2)];
+}
+
+function constrainPositionToWindow(absPos) { // Constrain a position to the window...
+    let windowWidth = window.innerWidth; // Get the window dimensions
+    let windowHeight = window.innerHeight;
+    let elementWidth = dom.mapContainer.offsetWidth; // Get the element dimensions
+    let elementHeight = dom.mapContainer.offsetHeight;
+    let left = absPos[0]; // Get the left and top positions of the element
+    let top = absPos[1];
+    if (left > 0) left = 0; // Constrain the left and top positions of the element
+    if (top > 0) top = 0;
+    if (left < windowWidth - elementWidth) left = windowWidth - elementWidth;
+    if (top < windowHeight - elementHeight) top = windowHeight - elementHeight;
+    return [left, top]; // Return the constrained position
+}
+
+function constrainSizeToWindow(absSize) { // Constrain a size to only ever be larger than the window, ensuring aspect ratio is maintained...
+    let windowWidth = window.innerWidth; // Get the window dimensions
+    let windowHeight = window.innerHeight;
+    let width = absSize[0]; // Get the width and height of the element
+    let height = absSize[1];
+    if (width < windowWidth) {
+        width = windowWidth; // Set the width to the window width
+        height = (windowWidth / absSize[0]) * absSize[1] // Set the height to maintain the aspect ratio
+    }
+    if (height < windowHeight) {
+        height = windowHeight; // Set the height to the window height
+        width = (windowHeight / absSize[1]) * absSize[0] // Set the width to maintain the aspect ratio
+    }
+    return [width, height]; // Return the constrained size
+}
+
+function getWindowScaleByHypoteneuse() { // Get the window scale by the hypoteneuse of the window dimensions...
+    return Math.sqrt(Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2));
+}
+
+function getElementScaleByHypoteneuse(element) { // Get the scale of an element by the hypoteneuse of its dimensions...
+    let rect = element.getBoundingClientRect();
+    return Math.sqrt(Math.pow(rect.width, 2) + Math.pow(rect.height, 2));
 }
 
 // Absolute and Relative Conversion
@@ -405,4 +474,27 @@ function absToRel(absPos) { // Convert an absolute position to a relative positi
         (absPos[0] - mapRect.left) / mapRect.width,
         (absPos[1] - mapRect.top) / mapRect.height
     ]
+}
+
+function windowRelToAbs(relPos) {
+    return [
+        relPos[0] * window.innerWidth,
+        relPos[1] * window.innerHeight
+    ]
+}
+
+function windowAbsToRel(absPos) {
+    return [
+        absPos[0] / window.innerWidth,
+        absPos[1] / window.innerHeight
+    ]
+}
+
+function positionElementByRelativeOffset(element, relPos1, relPos2) {
+    let mapRect = dom.mapContainer.getBoundingClientRect();
+    let relDifference = [relPos2[0] - relPos1[0], relPos2[1] - relPos1[1]];
+    let absDifference = [relDifference[0] * mapRect.width, relDifference[1] * mapRect.height];
+    let eRect = element.getBoundingClientRect();
+    let absPos = [eRect.left + absDifference[0], eRect.top + absDifference[1]];
+    position(element, absPos);
 }
