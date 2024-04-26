@@ -5,6 +5,8 @@ body {
     padding: 25px;
     justify-content: center;
     margin: auto;
+    margin-top: 100px;
+    margin-bottom: 100px;
 }
 
 body a:not(#footer a) {
