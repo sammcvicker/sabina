@@ -3,8 +3,10 @@
 :root {
     --map-width: 1065px;
     --map-height: 973px;
-    --pin-size: 40px;
-    --label-size: 264px;
+    /* --pin-size: 40px;
+    --label-size: 264px; */
+    --pin-size: 32px;
+    --label-size: 232px;
 }
 
 body {

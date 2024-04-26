@@ -66,7 +66,8 @@ let data = {
     },
     label: {
         resolution: [700, 216], // The native resolution of the labels in pixels
-        width: 264 // The actual width of the label in pixels (defined in stylesheet)
+        // width: 264 // The actual width of the label in pixels (defined in stylesheet)
+        width: 232, // The actual width of the label in pixels (defined in stylesheet)
     },
     labels: [ // The names, sources, and relative positions of the labels to show on the map (the element property will be populated later)
         {
@@ -127,7 +128,8 @@ let data = {
     ],
     pin: {
         resolution: [168, 305], // The native resolution of the pins in pixels
-        width: 40 // The actual width of the pin in pixels (defined in stylesheet)
+        // width: 40 // The actual width of the pin in pixels (defined in stylesheet)
+        width: 32 // The actual width of the pin in pixels (defined in stylesheet)
     },
     pins: [
         { // The names, sources, and relative positions of the pins to show on the map (the element property will be populated later)
