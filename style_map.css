@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Tenor+Sans&display=swap');
+
+:root {
+    --map-width: 1065px;
+    --map-height: 973px;
+    --pin-size: 40px;
+    --label-size: 264px;
+}
+
+body {
+    overflow-x: hidden;
+    overflow-y: hidden;
+    cursor: move;
+    margin: 0;
+    padding: 0;
+}
+
+.map-pin {
+    display: block;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    width: var(--pin-size);
+    background-image: url('./assets/map_pin_1.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 1;
+}
+
+#map-container, #map-container *, #map-container * * {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+#map-container * {
+    width: 100%;
+}
+
+#map {
+    z-index: -1;
+}
+
+#labels-container {
+    z-index: 1;
+}
+
+#pins-container {
+    z-index: 2;
+}
+
+#labels-container * {
+    width: var(--label-size);
+    opacity: 0.5;
+    transition: opacity 300ms;
+}

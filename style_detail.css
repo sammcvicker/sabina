@@ -1,7 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Aboreto&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Aboreto&family=Tenor+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tenor+Sans&display=swap');
 
 body {
     margin: 0;
@@ -95,6 +92,7 @@ p.summary {
 p.citation {
     opacity: 0.3;
     font-size: 0.8em;
+    hyphens: auto;
 }
 
 p.citation a {

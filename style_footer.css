@@ -1,15 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Tenor+Sans&display=swap');
+
 #footer {
+    font-family: "Tenor Sans", sans-serif;
     box-sizing: border-box;
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
     padding: 25px;
+    padding-top: 75px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     text-align: center;
     text-transform: uppercase;
-    background-color: white;
+    background: rgb(255,255,255);
+    background: linear-gradient(0deg, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
     z-index: 2;
 }
 
@@ -20,6 +25,5 @@
 }
 
 #footer a:hover {
-    /* text-decoration: underline; */
     color: black;
 }
