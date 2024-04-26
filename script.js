@@ -1,6 +1,5 @@
 // TODO: Rename pin1 (LEAVING FOR LATER)
 // TODO: Keep the map where it is at its current relative scale on window resize (LATER)
-// TODO: Take some liberties with the arrangement of the title!
 
 // TABLE OF CONTENTS -----------------------------------------------------------
 

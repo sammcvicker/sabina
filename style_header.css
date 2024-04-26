@@ -1,29 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Tenor+Sans&display=swap');
 
-#footer {
+#header {
     font-family: "Tenor Sans", sans-serif;
     box-sizing: border-box;
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
     width: 100%;
     padding: 25px;
-    padding-top: 80px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    padding-bottom: 75px;
     text-align: center;
     text-transform: uppercase;
     background: rgb(255,255,255);
-    background: linear-gradient(0deg, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
-    z-index: 2;
+    background: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%);
+    z-index: 3;
 }
 
-#footer a {
-    text-decoration: none;
+#header h1 {
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 25px;
+    font-size: 1.5em;
     color: gray;
-    transition: 200ms;
-}
-
-#footer a:hover {
-    color: black;
 }

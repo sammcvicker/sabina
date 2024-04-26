@@ -12,9 +12,12 @@
 body {
     overflow-x: hidden;
     overflow-y: hidden;
-    cursor: move;
     margin: 0;
     padding: 0;
+}
+
+body:not(#header, #header *, #footer, #footer *) {
+    cursor: move;
 }
 
 .map-pin {
@@ -27,6 +30,15 @@ body {
     background-size: contain;
     background-repeat: no-repeat;
     z-index: 1;
+}
+
+#header, #header *, #footer {
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    cursor: default;
 }
 
 #map-container, #map-container *, #map-container * * {
