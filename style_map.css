@@ -25,7 +25,7 @@ body:not(#header, #header *, #footer, #footer *) {
     position: absolute;
     margin: 0;
     padding: 0;
-    width: var(--pin-size);
+    width: var(--pin-size) !important;
     background-image: url('./assets/map_pin_1.png');
     background-size: contain;
     background-repeat: no-repeat;

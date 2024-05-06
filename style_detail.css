@@ -93,6 +93,7 @@ p.citation {
     opacity: 0.3;
     font-size: 0.8em;
     hyphens: auto;
+    word-break: break-all;
 }
 
 p.citation a {

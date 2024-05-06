@@ -135,6 +135,21 @@ let data = {
             name: "camille_billops",
             src: "./about_camille_billops.html",
             relPos: [0.5, 0.5]
+        },
+        {
+            name: "acts_of_art_00",
+            src: "./about_acts_of_art_and_cinque.html",
+            relPos: [0.43, 0.33]
+        },
+        {
+            name: "acts_of_art_01",
+            src: "./about_acts_of_art_and_cinque.html",
+            relPos: [0.42, 0.24]
+        },
+        {
+            name: "cinque_02",
+            src: "./about_acts_of_art_and_cinque.html",
+            relPos: [0.50, 0.29]
         }
     ]
 }
