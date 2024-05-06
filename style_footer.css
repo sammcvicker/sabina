@@ -21,7 +21,6 @@
     overflow-x: scroll;
 }
 
-/* if on mobile, hide the second footer link */
 @media (max-width: 600px) {
 
     #footer {
@@ -31,7 +30,11 @@
     #footer a:nth-child(2) {
         display: none;
     }
-    
+
+    #footer * {
+        font-size: 1em;
+    }
+
 }
 
 
