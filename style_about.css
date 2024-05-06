@@ -18,15 +18,12 @@ img {
 
 .block {
     box-sizing: border-box;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 50px;
+    display: block;
     padding: 25px;
-    justify-content: center;
     max-width: 1200px;
     margin: auto;
-    padding-bottom: 50px;
-    padding-top: 50px;
+    padding-bottom: 25px;
+    padding-top: 25px;
 }
 
 .block ~ .block {
@@ -36,6 +33,9 @@ img {
 .block > div {
     max-width: 500px;
     text-align: left;
+    margin: auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 figcaption {

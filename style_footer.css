@@ -27,3 +27,8 @@
 #footer a:hover {
     color: black;
 }
+
+#footer a.active {
+    color: black;
+    text-decoration: underline;
+}
