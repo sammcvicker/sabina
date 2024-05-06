@@ -1,6 +1,12 @@
 // TODO: Rename pin1 (LEAVING FOR LATER)
 // TODO: Keep the map where it is at its current relative scale on window resize (LATER)
 
+// REDIRECTION -----------------------------------------------------------------
+
+if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+    window.location = "./gallery.html"; 
+}
+
 // DEBUGGING -------------------------------------------------------------------
 
 let isLogRelPos = true; // Log the relative position of the cursor on mousedown
