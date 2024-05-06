@@ -128,7 +128,7 @@ let data = {
     pin: {
         resolution: [168, 305], // The native resolution of the pins in pixels
         // width: 40 // The actual width of the pin in pixels (defined in stylesheet)
-        width: 32 // The actual width of the pin in pixels (defined in stylesheet)
+        width: 28 // The actual width of the pin in pixels (defined in stylesheet)
     },
     pins: [
         { // The names, sources, and relative positions of the pins to show on the map (the element property will be populated later)
