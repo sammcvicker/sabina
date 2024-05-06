@@ -62,6 +62,7 @@ h2 {
 
 p {
     text-align: justify;
+    hyphens: auto;
     margin: 0;
     padding: 0;
 }
