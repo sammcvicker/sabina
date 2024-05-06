@@ -1,52 +1,6 @@
 // TODO: Rename pin1 (LEAVING FOR LATER)
 // TODO: Keep the map where it is at its current relative scale on window resize (LATER)
 
-// TABLE OF CONTENTS -----------------------------------------------------------
-
-// DEBUGGING
-// DATA OBJECT
-//     Calculated Constants (Map)
-//         calculateInitialScale()
-//     Calculated Constants (Labels)
-//     Calculated Constants (Pins)
-// DOM OBJECT
-// INITIALIZATION OF MAP, LABELS, & PINS
-//     Window
-//     Map
-//     Labels
-//         makeLabelElement()
-//         updateLabelPositions()
-//     Pins
-//         makePinElement()
-//         updatePinPositions()
-// EVENT LISTENERS & THEIR FUNCTIONS
-//     Debugging
-//         logRelPos()
-//     Label Opacities
-//         updateLabelOpacities()
-//     Zooming
-//         mapScroll()
-//         zoomAndPositionMap()
-//     Dragging
-//         dragStart()
-//         dragMove()
-//         dragEnd()
-// UTILITIES
-//     Sizing and Positioning
-//         sizeElement()
-//         position()
-//         centerElement()
-//         getCenterOf()
-//         constrainPositionToWindow()
-//         constrainSizeToWindow()
-//         getWindowScaleByHypoteneuse()
-//         getElementScaleByHypoteneuse()
-//     Absolute and Relative Conversion
-//         relToAbs()
-//         absToRel()
-//         windowRelToAbs()
-//         windowAbsToRel()
-
 // DEBUGGING -------------------------------------------------------------------
 
 let isLogRelPos = true; // Log the relative position of the cursor on mousedown
@@ -156,13 +110,13 @@ let data = {
 
 // Calculated Constants (Map)
 
-data.map.initialScale = calculateInitialScale(); // The initial scale of the map to fill the viewport
+data.map.initialScale = calculateMapScale(); // The initial scale of the map to fill the viewport
 data.map.initialSize = [ // Calculate the initial size of the map-container from that scale factor...
     data.map.resolution[0] * data.map.initialScale, 
     data.map.resolution[1] * data.map.initialScale
 ]
 
-function calculateInitialScale() { // Calculate a scale factor for the map to fill up the viewport...
+function calculateMapScale() { // Calculate a scale factor for the map to fill up the viewport...
     let viewportWidth = window.innerWidth; // Get the width of the viewport
     let viewportHeight = window.innerHeight; // Get the height of the viewport
     let viewportAspect = viewportWidth / viewportHeight; // Calculate the aspect ratio of the viewport
@@ -402,9 +356,10 @@ function dragEnd(e) { // Stop dragging the map-container, reset the dragging sta
 
 window.addEventListener('resize', maintainRelativeCenterAndScale); // Create a listener that calls resizeAtRelativeScale on resize
 
-function maintainRelativeCenterAndScale(e) { // Resize the map-container to maintain its current relative scale...
-    data.map.temporaryWindowCenterRelPos = absToRel([window.width / 2, window.height / 2]); // Calculate the temporary relative position of the center of the window on the map
-    positionElementByRelativeOffset(dom.mapContainer, data.map.temporaryWindowCenterRelPos, data.map.targetWindowCenterRelPos); // Position the map-container at the temporary relative position of the center of the window
+function maintainRelativeCenterAndScale(e) { // Set to initial scale and position in center of window
+    // update the initia
+    sizeElement(dom.mapContainer, calculateMapScale()); // Size the map-container
+    centerElement(dom.mapContainer); // Center the map-container
 }
 
 // UTILITIES -------------------------------------------------------------------
