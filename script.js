@@ -132,8 +132,8 @@ let data = {
     },
     pins: [
         { // The names, sources, and relative positions of the pins to show on the map (the element property will be populated later)
-            name: "pin1",
-            src: "./pin1.html",
+            name: "camille_billops",
+            src: "./about_camille_billops.html",
             relPos: [0.5, 0.5]
         }
     ]
