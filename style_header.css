@@ -25,6 +25,17 @@
     color: gray;
 }
 
+#header a {
+        color: gray;
+        text-decoration: none;
+        cursor: pointer;
+        transition: 100ms;
+}
+
+#header a:hover {
+    color: black;
+}
+
 @media (max-width: 600px) {
 
     #header h1 {

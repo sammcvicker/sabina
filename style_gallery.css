@@ -10,5 +10,5 @@ body {
 }
 
 body a:not(#footer a) {
-    max-width: 500px;
+    max-width: 440px;
 }

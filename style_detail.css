@@ -23,7 +23,7 @@ img {
     gap: 50px;
     padding: 25px;
     justify-content: center;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: auto;
     padding-bottom: 50px;
     padding-top: 50px;
@@ -34,7 +34,7 @@ img {
 }
 
 .block > div {
-    max-width: 500px;
+    max-width: 440px;
     text-align: left;
 }
 
@@ -91,13 +91,18 @@ p.summary {
 }
 
 p.citation {
-    opacity: 0.3;
+    color: rgba(0, 0, 0, 0.3);
     font-size: 0.8em;
     hyphens: auto;
-    word-break: break-all;
 }
 
 p.citation a {
-    color: black;
+    color: rgba(0, 0, 0, 0.3);
     opacity: 1;
+    word-break: break-all;
+    transition: 100ms;
+}
+
+p.citation a:hover {
+    color: black;
 }

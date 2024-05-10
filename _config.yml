@@ -1,0 +1,6 @@
+# Force HTTPS
+production:
+  force_https: true
+
+# Remove .html from URLs
+permalink: pretty
